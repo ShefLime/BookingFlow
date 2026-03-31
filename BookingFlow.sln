@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingFlow.Api", "BookingFlow.Api\BookingFlow.Api.csproj", "{E267E556-83F1-4B42-B624-C88F8C4F8466}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9426473F-3B70-479D-9C7D-B322F8592E7F}"
+	ProjectSection(SolutionItems) = preProject
+		compose.yaml = compose.yaml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingFlow.App", "BookingFlow.App\BookingFlow.App.csproj", "{5A63DE74-AEC8-405A-B038-4A25446FD4D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingFlow.Domain", "BookingFlow.Domain\BookingFlow.Domain.csproj", "{6095B764-D85A-4155-88E7-0B5B7F887943}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingFlow.Infrastructure", "BookingFlow.Infrastructure\BookingFlow.Infrastructure.csproj", "{BD0AAD11-329D-42BD-B976-2ACA82C82B65}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingFlow.Tests", "BookingFlow.Tests\BookingFlow.Tests.csproj", "{D2AE6EBA-1654-405D-A0D1-E970301FF18B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E267E556-83F1-4B42-B624-C88F8C4F8466}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E267E556-83F1-4B42-B624-C88F8C4F8466}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E267E556-83F1-4B42-B624-C88F8C4F8466}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E267E556-83F1-4B42-B624-C88F8C4F8466}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A63DE74-AEC8-405A-B038-4A25446FD4D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A63DE74-AEC8-405A-B038-4A25446FD4D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A63DE74-AEC8-405A-B038-4A25446FD4D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A63DE74-AEC8-405A-B038-4A25446FD4D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6095B764-D85A-4155-88E7-0B5B7F887943}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6095B764-D85A-4155-88E7-0B5B7F887943}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6095B764-D85A-4155-88E7-0B5B7F887943}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6095B764-D85A-4155-88E7-0B5B7F887943}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD0AAD11-329D-42BD-B976-2ACA82C82B65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD0AAD11-329D-42BD-B976-2ACA82C82B65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD0AAD11-329D-42BD-B976-2ACA82C82B65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD0AAD11-329D-42BD-B976-2ACA82C82B65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2AE6EBA-1654-405D-A0D1-E970301FF18B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2AE6EBA-1654-405D-A0D1-E970301FF18B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2AE6EBA-1654-405D-A0D1-E970301FF18B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2AE6EBA-1654-405D-A0D1-E970301FF18B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,25 @@
+﻿services:
+  slc.core:
+    image: slc.core
+    build:
+      context: .
+      dockerfile: Slc.Core/Dockerfile
+
+  bookingflow.app:
+    image: bookingflow.app
+    build:
+      context: .
+      dockerfile: BookingFlow.App/Dockerfile
+
+  bookingflow.domain:
+    image: bookingflow.domain
+    build:
+      context: .
+      dockerfile: BookingFlow.Domain/Dockerfile
+
+  bookingflow.infrastructure:
+    image: bookingflow.infrastructure
+    build:
+      context: .
+      dockerfile: BookingFlow.Infrastructure/Dockerfile
+
