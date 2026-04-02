@@ -3570,11 +3570,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow.Infrastructure/BookingFlow.Infrastructure.csproj",
+      "projectUniqueName": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow/BookingFlow.Infrastructure/BookingFlow.Infrastructure.csproj",
       "projectName": "BookingFlow.Infrastructure",
-      "projectPath": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow.Infrastructure/BookingFlow.Infrastructure.csproj",
+      "projectPath": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow/BookingFlow.Infrastructure/BookingFlow.Infrastructure.csproj",
       "packagesPath": "/Users/ilabarysnikov/.nuget/packages/",
-      "outputPath": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow.Infrastructure/obj/",
+      "outputPath": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow/BookingFlow.Infrastructure/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/ilabarysnikov/.nuget/NuGet/NuGet.Config"

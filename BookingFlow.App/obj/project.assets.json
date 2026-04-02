@@ -3596,11 +3596,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow.App/BookingFlow.App.csproj",
+      "projectUniqueName": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow/BookingFlow.App/BookingFlow.App.csproj",
       "projectName": "BookingFlow.App",
-      "projectPath": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow.App/BookingFlow.App.csproj",
+      "projectPath": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow/BookingFlow.App/BookingFlow.App.csproj",
       "packagesPath": "/Users/ilabarysnikov/.nuget/packages/",
-      "outputPath": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow.App/obj/",
+      "outputPath": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow/BookingFlow.App/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/ilabarysnikov/.nuget/NuGet/NuGet.Config"
@@ -3615,8 +3615,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow.Domain/BookingFlow.Domain.csproj": {
-              "projectPath": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow.Domain/BookingFlow.Domain.csproj"
+            "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow/BookingFlow.Domain/BookingFlow.Domain.csproj": {
+              "projectPath": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow/BookingFlow.Domain/BookingFlow.Domain.csproj"
             }
           }
         }

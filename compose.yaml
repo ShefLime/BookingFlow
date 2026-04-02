@@ -1,25 +1,138 @@
-﻿services:
-  slc.core:
-    image: slc.core
+services:
+  keycloak-postgres:
+    image: postgres:17-alpine
+    container_name: bookingflow-keycloak-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_dev_password
+    volumes:
+      - keycloak-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.2
+    container_name: bookingflow-keycloak
+    entrypoint: ["/bin/sh", "/opt/keycloak/data/import/start-dev-with-master-http.sh"]
+    depends_on:
+      keycloak-postgres:
+        condition: service_healthy
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak-postgres
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_dev_password
+      KC_HTTP_ENABLED: true
+      KC_BOOTSTRAP_ADMIN_USERNAME: bookingflow-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: bookingflow-admin
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./infra/keycloak:/opt/keycloak/data/import:ro
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:RELEASE.2025-02-28T09-55-16Z
+    container_name: bookingflow-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: bookingflow
+      MINIO_ROOT_PASSWORD: bookingflow-secret
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    restart: unless-stopped
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-02-21T16-00-46Z
+    container_name: bookingflow-minio-init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 bookingflow bookingflow-secret; do
+        sleep 2;
+      done &&
+      mc mb -p local/bookingflow-media || true &&
+      mc anonymous set download local/bookingflow-media
+      "
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: bookingflow-postgres
+    environment:
+      POSTGRES_DB: bookingflow
+      POSTGRES_USER: bookingflow
+      POSTGRES_PASSWORD: bookingflow_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bookingflow -d bookingflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  api:
     build:
       context: .
-      dockerfile: Slc.Core/Dockerfile
+      dockerfile: BookingFlow.Api/Dockerfile
+    container_name: bookingflow-api
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      Database__Provider: Postgres
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=bookingflow;Username=bookingflow;Password=bookingflow_dev_password
+      Storage__Provider: Minio
+      Storage__ServiceUrl: http://minio:9000
+      Storage__Region: us-east-1
+      Storage__AccessKey: bookingflow
+      Storage__SecretKey: bookingflow-secret
+      Storage__BucketName: bookingflow-media
+      Storage__PublicBaseUrl: http://localhost:9000/bookingflow-media
+      Storage__ForcePathStyle: true
+      Keycloak__Authority: http://localhost:8081/realms/bookingflow
+      Keycloak__MetadataAddress: http://keycloak:8080/realms/bookingflow/.well-known/openid-configuration
+      Keycloak__FrontendClientId: bookingflow-frontend
+      Keycloak__RequireHttpsMetadata: false
+      Jwt__Issuer: BookingFlow.Api
+      Jwt__Audience: BookingFlow.Client
+      Jwt__SigningKey: bookingflow-dev-signing-key-please-change
+      Jwt__ExpirationMinutes: 720
+    ports:
+      - "5282:8080"
+    restart: unless-stopped
 
-  bookingflow.app:
-    image: bookingflow.app
+  frontend:
     build:
       context: .
-      dockerfile: BookingFlow.App/Dockerfile
+      dockerfile: BookingFlow.Frontend/Dockerfile
+    container_name: bookingflow-frontend
+    depends_on:
+      - api
+    ports:
+      - "5173:80"
+    restart: unless-stopped
 
-  bookingflow.domain:
-    image: bookingflow.domain
-    build:
-      context: .
-      dockerfile: BookingFlow.Domain/Dockerfile
-
-  bookingflow.infrastructure:
-    image: bookingflow.infrastructure
-    build:
-      context: .
-      dockerfile: BookingFlow.Infrastructure/Dockerfile
-
+volumes:
+  keycloak-postgres-data:
+  postgres-data:
+  minio-data:

@@ -1,6 +1,8 @@
 using BookingFlow.Api.Contract.Event;
 using BookingFlow.Api.Data;
 using BookingFlow.Api.Extensions;
+using BookingFlow.Api.Models.Content;
+using BookingFlow.Api.Services;
 using BookingFlow.Domain.Entity;
 using BookingFlow.Domain.Enum;
 using Microsoft.AspNetCore.Authorization;
@@ -10,9 +12,12 @@ using Microsoft.EntityFrameworkCore;
 namespace BookingFlow.Api.Controllers;
 
 [ApiController]
-public sealed class EventsController(ApplicationDbContext dbContext) : ControllerBase
+public sealed class EventsController(
+    ApplicationDbContext dbContext,
+    AccessControlService accessControlService) : ControllerBase
 {
     private readonly ApplicationDbContext _dbContext = dbContext;
+    private readonly AccessControlService _accessControlService = accessControlService;
 
     [HttpGet("api/organizations/{organizationId:guid}/events")]
     public async Task<ActionResult<IReadOnlyCollection<EventResponse>>> GetEvents(
@@ -46,6 +51,10 @@ public sealed class EventsController(ApplicationDbContext dbContext) : Controlle
                 Name = x.Name,
                 Description = x.Description,
                 Location = x.Location,
+                PosterImageUrl = x.PosterImageUrl,
+                Gallery = StructuredContentSerializer.DeserializeOrDefault<List<MediaAssetItem>>(x.GalleryJson),
+                Documents = StructuredContentSerializer.DeserializeOrDefault<List<MediaAssetItem>>(x.DocumentsJson),
+                Content = StructuredContentSerializer.DeserializeOrDefault<EventContent>(x.ContentJson),
                 StartAtUtc = x.StartAtUtc,
                 EndAtUtc = x.EndAtUtc,
                 Capacity = x.Capacity,
@@ -81,6 +90,10 @@ public sealed class EventsController(ApplicationDbContext dbContext) : Controlle
                 Name = x.Name,
                 Description = x.Description,
                 Location = x.Location,
+                PosterImageUrl = x.PosterImageUrl,
+                Gallery = StructuredContentSerializer.DeserializeOrDefault<List<MediaAssetItem>>(x.GalleryJson),
+                Documents = StructuredContentSerializer.DeserializeOrDefault<List<MediaAssetItem>>(x.DocumentsJson),
+                Content = StructuredContentSerializer.DeserializeOrDefault<EventContent>(x.ContentJson),
                 StartAtUtc = x.StartAtUtc,
                 EndAtUtc = x.EndAtUtc,
                 Capacity = x.Capacity,
@@ -117,12 +130,22 @@ public sealed class EventsController(ApplicationDbContext dbContext) : Controlle
             return NotFound();
         }
 
+        var canManage = await _accessControlService.CanManageOrganizationAsync(User, organizationId, cancellationToken);
+        if (!canManage)
+        {
+            return Forbid();
+        }
+
         var eventSession = new EventSession
         {
             OrganizationId = organizationId,
             Name = request.Name.Trim(),
             Description = request.Description.Trim(),
             Location = request.Location.Trim(),
+            PosterImageUrl = request.PosterImageUrl?.Trim(),
+            GalleryJson = StructuredContentSerializer.Serialize(request.Gallery),
+            DocumentsJson = StructuredContentSerializer.Serialize(request.Documents),
+            ContentJson = StructuredContentSerializer.Serialize(request.Content),
             StartAtUtc = request.StartAtUtc.ToUniversalTime(),
             EndAtUtc = request.EndAtUtc.ToUniversalTime(),
             Capacity = request.Capacity,
@@ -160,9 +183,19 @@ public sealed class EventsController(ApplicationDbContext dbContext) : Controlle
             return NotFound();
         }
 
+        var canManage = await _accessControlService.CanManageOrganizationAsync(User, eventSession.OrganizationId, cancellationToken);
+        if (!canManage)
+        {
+            return Forbid();
+        }
+
         eventSession.Name = request.Name.Trim();
         eventSession.Description = request.Description.Trim();
         eventSession.Location = request.Location.Trim();
+        eventSession.PosterImageUrl = request.PosterImageUrl?.Trim();
+        eventSession.GalleryJson = StructuredContentSerializer.Serialize(request.Gallery);
+        eventSession.DocumentsJson = StructuredContentSerializer.Serialize(request.Documents);
+        eventSession.ContentJson = StructuredContentSerializer.Serialize(request.Content);
         eventSession.StartAtUtc = request.StartAtUtc.ToUniversalTime();
         eventSession.EndAtUtc = request.EndAtUtc.ToUniversalTime();
         eventSession.Capacity = request.Capacity;
@@ -203,6 +236,10 @@ public sealed class EventsController(ApplicationDbContext dbContext) : Controlle
             Name = eventSession.Name,
             Description = eventSession.Description,
             Location = eventSession.Location,
+            PosterImageUrl = eventSession.PosterImageUrl,
+            Gallery = StructuredContentSerializer.DeserializeOrDefault<List<MediaAssetItem>>(eventSession.GalleryJson),
+            Documents = StructuredContentSerializer.DeserializeOrDefault<List<MediaAssetItem>>(eventSession.DocumentsJson),
+            Content = StructuredContentSerializer.DeserializeOrDefault<EventContent>(eventSession.ContentJson),
             StartAtUtc = eventSession.StartAtUtc,
             EndAtUtc = eventSession.EndAtUtc,
             Capacity = eventSession.Capacity,

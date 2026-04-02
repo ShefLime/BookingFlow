@@ -18,10 +18,22 @@ public sealed class AvailabilityService(ApplicationDbContext dbContext)
         var resource = await _dbContext.Resources
             .AsNoTracking()
             .Include(x => x.Organization)
+            .Include(x => x.ProviderProfile)
             .Include(x => x.AvailabilityRules)
             .SingleOrDefaultAsync(x => x.Id == resourceId, cancellationToken);
 
-        if (resource is null || !resource.IsActive || !resource.Organization.IsActive)
+        if (resource is null || !resource.IsActive)
+        {
+            return Array.Empty<AvailableSlotResponse>();
+        }
+
+        var ownerTimeZoneId = resource.Organization?.TimeZone ?? resource.ProviderProfile?.TimeZone;
+        if (resource.OrganizationId.HasValue && (resource.Organization is null || !resource.Organization.IsActive))
+        {
+            return Array.Empty<AvailableSlotResponse>();
+        }
+
+        if (resource.ProviderProfileId.HasValue && resource.ProviderProfile?.ApprovalStatus != ModerationStatus.Approved)
         {
             return Array.Empty<AvailableSlotResponse>();
         }
@@ -36,7 +48,7 @@ public sealed class AvailabilityService(ApplicationDbContext dbContext)
             return Array.Empty<AvailableSlotResponse>();
         }
 
-        var timeZone = ResolveTimeZone(resource.Organization.TimeZone);
+        var timeZone = ResolveTimeZone(ownerTimeZoneId);
         var utcDayStart = ConvertLocalToUtc(date, TimeSpan.Zero, timeZone);
         var utcDayEnd = ConvertLocalToUtc(date.AddDays(1), TimeSpan.Zero, timeZone);
 
@@ -69,7 +81,7 @@ public sealed class AvailabilityService(ApplicationDbContext dbContext)
                     StartAtUtc = slotStartAtUtc,
                     EndAtUtc = slotEndAtUtc,
                     IsAvailable = !isBusy && slotStartAtUtc >= DateTimeOffset.UtcNow,
-                    OrganizationTimeZone = resource.Organization.TimeZone
+                    OrganizationTimeZone = ownerTimeZoneId ?? "UTC"
                 });
             }
         }
@@ -100,13 +112,13 @@ public sealed class AvailabilityService(ApplicationDbContext dbContext)
             return $"Booking duration must be a multiple of {resource.SlotSizeMinutes} minutes.";
         }
 
-        var timeZone = ResolveTimeZone(resource.Organization.TimeZone);
+        var timeZone = ResolveTimeZone(resource.Organization?.TimeZone ?? resource.ProviderProfile?.TimeZone);
         var localStart = TimeZoneInfo.ConvertTime(startAtUtc, timeZone);
         var localEnd = TimeZoneInfo.ConvertTime(endAtUtc, timeZone);
 
         if (localStart.Date != localEnd.Date)
         {
-            return "Booking must be inside a single organization local day.";
+            return "Booking must be inside a single owner local day.";
         }
 
         var isInsideAvailability = resource.AvailabilityRules

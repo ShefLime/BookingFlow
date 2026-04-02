@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BookingFlow.Api.Controllers;
 
 [ApiController]
-[Authorize(Roles = AuthorizationRoles.Client)]
+[Authorize]
 [Route("api/bookings")]
 public sealed class BookingsController(
     ApplicationDbContext dbContext,
@@ -34,17 +34,38 @@ public sealed class BookingsController(
 
         var resource = await _dbContext.Resources
             .Include(x => x.Organization)
+            .Include(x => x.ProviderProfile)
             .Include(x => x.AvailabilityRules)
             .SingleOrDefaultAsync(x => x.Id == request.ResourceId, cancellationToken);
 
-        if (resource is null || !resource.IsActive || !resource.Organization.IsActive)
+        if (resource is null || !resource.IsActive)
         {
             return NotFound(new { message = "Resource was not found or is inactive." });
         }
 
-        if (resource.OrganizationId != request.OrganizationId)
+        if (resource.OrganizationId.HasValue)
         {
-            return BadRequest(new { message = "Organization id does not match the selected resource." });
+            if (resource.Organization is null || !resource.Organization.IsActive)
+            {
+                return NotFound(new { message = "Resource was not found or is inactive." });
+            }
+
+            if (resource.OrganizationId != request.OrganizationId)
+            {
+                return BadRequest(new { message = "Organization id does not match the selected resource." });
+            }
+        }
+        else
+        {
+            if (request.OrganizationId.HasValue)
+            {
+                return BadRequest(new { message = "Provider-owned resources do not require an organization id." });
+            }
+
+            if (resource.ProviderProfile is null || resource.ProviderProfile.ApprovalStatus != ModerationStatus.Approved)
+            {
+                return NotFound(new { message = "Resource was not found or is inactive." });
+            }
         }
 
         if (request.GuestCount > resource.Capacity)
@@ -68,12 +89,15 @@ public sealed class BookingsController(
         {
             UserId = userId,
             OrganizationId = resource.OrganizationId,
+            ProviderProfileId = resource.ProviderProfileId,
             ResourceId = resource.Id,
             StartAtUtc = request.StartAtUtc.ToUniversalTime(),
             EndAtUtc = request.EndAtUtc.ToUniversalTime(),
             GuestCount = request.GuestCount,
             Comment = request.Comment?.Trim(),
             Status = BookingStatus.Confirmed,
+            Price = resource.PriceFrom,
+            Currency = resource.PriceFrom.HasValue ? "USD" : null,
             ConfirmedAtUtc = DateTimeOffset.UtcNow
         };
 
@@ -81,6 +105,7 @@ public sealed class BookingsController(
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         booking.Organization = resource.Organization;
+        booking.ProviderProfile = resource.ProviderProfile;
         booking.Resource = resource;
 
         return CreatedAtAction(nameof(GetMyBookingById), new { bookingId = booking.Id }, ToResponse(booking));
@@ -159,6 +184,7 @@ public sealed class BookingsController(
             .AsNoTracking()
             .Where(x => x.UserId == userId)
             .Include(x => x.Organization)
+            .Include(x => x.ProviderProfile)
             .Include(x => x.Resource)
             .Include(x => x.EventSession)
             .ToListAsync(cancellationToken);
@@ -267,8 +293,11 @@ public sealed class BookingsController(
 
         return await _dbContext.Bookings
             .Include(x => x.Organization)
+            .Include(x => x.ProviderProfile)
             .Include(x => x.Resource)
             .ThenInclude(x => x!.Organization)
+            .Include(x => x.Resource)
+            .ThenInclude(x => x!.ProviderProfile)
             .Include(x => x.Resource)
             .ThenInclude(x => x!.AvailabilityRules)
             .Include(x => x.EventSession)
@@ -282,7 +311,9 @@ public sealed class BookingsController(
             Id = booking.Id,
             UserId = booking.UserId,
             OrganizationId = booking.OrganizationId,
-            OrganizationName = booking.Organization.Name,
+            OrganizationName = booking.Organization?.Name,
+            ProviderProfileId = booking.ProviderProfileId,
+            ProviderDisplayName = booking.ProviderProfile?.DisplayName,
             ResourceId = booking.ResourceId,
             ResourceName = booking.Resource?.Name,
             EventSessionId = booking.EventSessionId,

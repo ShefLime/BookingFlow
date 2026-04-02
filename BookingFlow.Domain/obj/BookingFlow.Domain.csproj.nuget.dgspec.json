@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow.Domain/BookingFlow.Domain.csproj": {}
+    "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow/BookingFlow.Domain/BookingFlow.Domain.csproj": {}
   },
   "projects": {
-    "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow.Domain/BookingFlow.Domain.csproj": {
+    "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow/BookingFlow.Domain/BookingFlow.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow.Domain/BookingFlow.Domain.csproj",
+        "projectUniqueName": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow/BookingFlow.Domain/BookingFlow.Domain.csproj",
         "projectName": "BookingFlow.Domain",
-        "projectPath": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow.Domain/BookingFlow.Domain.csproj",
+        "projectPath": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow/BookingFlow.Domain/BookingFlow.Domain.csproj",
         "packagesPath": "/Users/ilabarysnikov/.nuget/packages/",
-        "outputPath": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow.Domain/obj/",
+        "outputPath": "/Users/ilabarysnikov/Myself/BookingFlow/BookingFlow/BookingFlow.Domain/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/ilabarysnikov/.nuget/NuGet/NuGet.Config"

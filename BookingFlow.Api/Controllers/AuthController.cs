@@ -1,9 +1,8 @@
 using BookingFlow.Api.Contract.Auth;
 using BookingFlow.Api.Data;
+using BookingFlow.Api.Extensions;
 using BookingFlow.Api.Services;
-using BookingFlow.Domain.Entity;
-using BookingFlow.Domain.Enum;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,75 +12,55 @@ namespace BookingFlow.Api.Controllers;
 [Route("api/auth")]
 public sealed class AuthController(
     ApplicationDbContext dbContext,
-    IPasswordHasher<User> passwordHasher,
-    JwtTokenService jwtTokenService) : ControllerBase
+    UserProvisioningService userProvisioningService) : ControllerBase
 {
     private readonly ApplicationDbContext _dbContext = dbContext;
-    private readonly IPasswordHasher<User> _passwordHasher = passwordHasher;
-    private readonly JwtTokenService _jwtTokenService = jwtTokenService;
+    private readonly UserProvisioningService _userProvisioningService = userProvisioningService;
 
-    [HttpPost("register")]
-    public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request, CancellationToken cancellationToken)
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<ActionResult<CurrentUserResponse>> GetCurrentUser(CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Email) ||
-            string.IsNullOrWhiteSpace(request.Password) ||
-            string.IsNullOrWhiteSpace(request.FirstName) ||
-            string.IsNullOrWhiteSpace(request.LastName))
+        var localUser = await _dbContext.Users
+            .AsNoTracking()
+            .Include(x => x.OrganizationMemberships.Where(y => y.IsActive))
+                .ThenInclude(x => x.Organization)
+            .Include(x => x.ProviderProfile)
+            .SingleOrDefaultAsync(x => x.Id == User.GetRequiredUserId(), cancellationToken);
+
+        if (localUser is null)
         {
-            return BadRequest(new { message = "Email, password, first name and last name are required." });
+            return Unauthorized(new { message = "Current user profile was not found." });
         }
 
-        if (request.Password.Length < 6)
+        var roles = _userProvisioningService.GetEffectiveRoles(localUser);
+
+        return Ok(new CurrentUserResponse
         {
-            return BadRequest(new { message = "Password must contain at least 6 characters." });
-        }
-
-        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
-        var emailExists = await _dbContext.Users.AnyAsync(x => x.Email == normalizedEmail, cancellationToken);
-        if (emailExists)
-        {
-            return Conflict(new { message = "A user with this email already exists." });
-        }
-
-        var user = new User
-        {
-            Email = normalizedEmail,
-            FirstName = request.FirstName.Trim(),
-            LastName = request.LastName.Trim(),
-            Phone = request.Phone?.Trim() ?? string.Empty,
-            Role = UserRole.Client,
-            IsActive = true
-        };
-
-        user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
-
-        _dbContext.Users.Add(user);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return Ok(_jwtTokenService.Create(user));
-    }
-
-    [HttpPost("login")]
-    public async Task<ActionResult<AuthResponse>> Login(LoginRequest request, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
-        {
-            return BadRequest(new { message = "Email and password are required." });
-        }
-
-        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
-        var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Email == normalizedEmail, cancellationToken);
-        if (user is null || !user.IsActive)
-        {
-            return Unauthorized(new { message = "Invalid credentials." });
-        }
-
-        var verificationResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
-        if (verificationResult == PasswordVerificationResult.Failed)
-        {
-            return Unauthorized(new { message = "Invalid credentials." });
-        }
-
-        return Ok(_jwtTokenService.Create(user));
+            UserId = localUser.Id,
+            KeycloakSubject = localUser.KeycloakSubject,
+            Email = localUser.Email,
+            FirstName = localUser.FirstName,
+            LastName = localUser.LastName,
+            Phone = localUser.Phone,
+            Roles = roles,
+            Memberships = localUser.OrganizationMemberships
+                .OrderBy(x => x.Organization.Name)
+                .Select(x => new UserMembershipResponse
+                {
+                    OrganizationId = x.OrganizationId,
+                    OrganizationName = x.Organization.Name,
+                    Title = x.Title
+                })
+                .ToArray(),
+            ProviderProfile = localUser.ProviderProfile is null
+                ? null
+                : new CurrentProviderProfileSummary
+                {
+                    Id = localUser.ProviderProfile.Id,
+                    DisplayName = localUser.ProviderProfile.DisplayName,
+                    ApprovalStatus = localUser.ProviderProfile.ApprovalStatus
+                }
+        });
     }
 }

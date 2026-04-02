@@ -6,8 +6,10 @@ public sealed class BookingResponse
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
-    public Guid OrganizationId { get; set; }
-    public string OrganizationName { get; set; } = null!;
+    public Guid? OrganizationId { get; set; }
+    public string? OrganizationName { get; set; }
+    public Guid? ProviderProfileId { get; set; }
+    public string? ProviderDisplayName { get; set; }
     public Guid? ResourceId { get; set; }
     public string? ResourceName { get; set; }
     public Guid? EventSessionId { get; set; }

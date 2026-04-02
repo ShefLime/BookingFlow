@@ -1,23 +1,19 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-USER $APP_UID
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
-
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Slc.Core/Slc.Core.csproj", "Slc.Core/"]
-RUN dotnet restore "Slc.Core/Slc.Core.csproj"
+
+COPY ["BookingFlow.Api/BookingFlow.Api.csproj", "BookingFlow.Api/"]
+COPY ["BookingFlow.Domain/BookingFlow.Domain.csproj", "BookingFlow.Domain/"]
+RUN dotnet restore "BookingFlow.Api/BookingFlow.Api.csproj"
+
 COPY . .
-WORKDIR "/src/Slc.Core"
-RUN dotnet build "./Slc.Core.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR /src/BookingFlow.Api
+RUN dotnet publish "BookingFlow.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Slc.Core.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Slc.Core.dll"]
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
+
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "BookingFlow.Api.dll"]

@@ -1,20 +1,32 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using BookingFlow.Api.Contract.Admin;
+using BookingFlow.Api.Contract.Analytics;
 using BookingFlow.Api.Contract.Auth;
 using BookingFlow.Api.Contract.Availability;
 using BookingFlow.Api.Contract.Booking;
 using BookingFlow.Api.Contract.Event;
 using BookingFlow.Api.Contract.Organization;
+using BookingFlow.Api.Contract.Provider;
 using BookingFlow.Api.Contract.ResourceRequest;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BookingFlow.Tests;
 
 [TestFixture]
 public sealed class ApiIntegrationTests
 {
+    private const string AdminSubject = "11111111-1111-1111-1111-111111111111";
+    private const string ClientSubject = "22222222-2222-2222-2222-222222222222";
+    private const string ManagerSubject = "33333333-3333-3333-3333-333333333333";
+    private const string ProviderSubject = "44444444-4444-4444-4444-444444444444";
+
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         Converters = { new JsonStringEnumConverter() }
@@ -51,22 +63,30 @@ public sealed class ApiIntegrationTests
     }
 
     [Test]
-    public async Task Login_WithSeededClient_ReturnsJwtToken()
+    public async Task GetCurrentUser_WithSeededClientToken_ReturnsProvisionedProfile()
     {
-        var response = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest
-        {
-            Email = "client@bookingflow.local",
-            Password = "Client123!"
-        });
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CreateClientToken());
 
-        response.EnsureSuccessStatusCode();
+        var profile = await _client.GetFromJsonAsync<CurrentUserResponse>("/api/auth/me", JsonOptions);
 
-        var authResponse = await response.Content.ReadFromJsonAsync<AuthResponse>(JsonOptions);
+        Assert.That(profile, Is.Not.Null);
+        Assert.That(profile!.Email, Is.EqualTo("client@bookingflow.local"));
+        Assert.That(profile.KeycloakSubject, Is.EqualTo(ClientSubject));
+        Assert.That(profile.Roles.Select(x => x.ToString()), Does.Contain("Client"));
+    }
 
-        Assert.That(authResponse, Is.Not.Null);
-        Assert.That(authResponse!.AccessToken, Is.Not.Empty);
-        Assert.That(authResponse.Role, Is.EqualTo("Client"));
-        Assert.That(authResponse.Email, Is.EqualTo("client@bookingflow.local"));
+    [Test]
+    public async Task GetAdminUsers_WithSeededAdminToken_ReturnsDemoUsers()
+    {
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CreateAdminToken());
+
+        var users = await _client.GetFromJsonAsync<IReadOnlyCollection<AdminUserResponse>>(
+            "/api/admin/users",
+            JsonOptions);
+
+        Assert.That(users, Is.Not.Null);
+        Assert.That(users!.Select(x => x.Email), Does.Contain("admin@bookingflow.local"));
+        Assert.That(users.Select(x => x.Email), Does.Contain("provider@bookingflow.local"));
     }
 
     [Test]
@@ -88,7 +108,7 @@ public sealed class ApiIntegrationTests
     [Test]
     public async Task CreateResourceBooking_WithAuthorizedClient_CreatesBooking()
     {
-        var token = await LoginAsClientAsync();
+        var token = CreateClientToken();
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var (bar, table) = await GetBarAndTableAsync();
@@ -120,7 +140,7 @@ public sealed class ApiIntegrationTests
     [Test]
     public async Task CreateResourceBooking_ForAlreadyBookedSlot_ReturnsBadRequest()
     {
-        var token = await LoginAsClientAsync();
+        var token = CreateClientToken();
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var (bar, table) = await GetBarAndTableAsync();
@@ -158,13 +178,13 @@ public sealed class ApiIntegrationTests
         Assert.That(events, Is.Not.Null);
         Assert.That(events!, Has.Count.EqualTo(1));
         Assert.That(events.First().Name, Is.EqualTo("Friday Jazz Night"));
-        Assert.That(events.First().RemainingCapacity, Is.EqualTo(events.First().Capacity));
+        Assert.That(events.First().RemainingCapacity, Is.EqualTo(events.First().Capacity - 2));
     }
 
     [Test]
     public async Task CancelBooking_LessThan24HoursBeforeStart_ReturnsBadRequest()
     {
-        var token = await LoginAsClientAsync();
+        var token = CreateClientToken();
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var booking = await CreateBookingAsync();
@@ -183,7 +203,7 @@ public sealed class ApiIntegrationTests
     [Test]
     public async Task CancelBooking_MoreThan24HoursBeforeStart_Succeeds()
     {
-        var token = await LoginAsClientAsync();
+        var token = CreateClientToken();
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var booking = await CreateBookingAsync();
@@ -202,7 +222,7 @@ public sealed class ApiIntegrationTests
     [Test]
     public async Task RescheduleBooking_LessThan24HoursBeforeStart_ReturnsBadRequest()
     {
-        var token = await LoginAsClientAsync();
+        var token = CreateClientToken();
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var booking = await CreateBookingAsync();
@@ -225,7 +245,7 @@ public sealed class ApiIntegrationTests
     [Test]
     public async Task RescheduleBooking_MoreThan24HoursBeforeStart_Succeeds()
     {
-        var token = await LoginAsClientAsync();
+        var token = CreateClientToken();
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var booking = await CreateBookingAsync();
@@ -247,18 +267,145 @@ public sealed class ApiIntegrationTests
         Assert.That(updatedBooking.EndAtUtc, Is.EqualTo(rescheduleSlot.EndAtUtc));
     }
 
-    private async Task<string> LoginAsClientAsync()
+    [Test]
+    public async Task GetOrganizationAnalytics_WithManagerToken_ReturnsSeededMetrics()
     {
-        var response = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CreateManagerToken());
+        var fitnessClub = await GetOrganizationByNameAsync("Pulse Fitness Club");
+
+        var analytics = await _client.GetFromJsonAsync<OrganizationAnalyticsResponse>(
+            $"/api/organizations/{fitnessClub.Id}/analytics",
+            JsonOptions);
+
+        Assert.That(analytics, Is.Not.Null);
+        Assert.That(analytics!.HasAccess, Is.True);
+        Assert.That(analytics.TotalViews, Is.GreaterThan(0));
+        Assert.That(analytics.ExpectedRevenue, Is.GreaterThan(0));
+        Assert.That(analytics.StaffLeaderboard, Is.Not.Empty);
+        Assert.That(analytics.RetentionCandidates, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetOrganizationAnalytics_WhenSubscriptionDisabled_ReturnsLockedStateForManager()
+    {
+        var fitnessClub = await GetOrganizationByNameAsync("Pulse Fitness Club");
+
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CreateAdminToken());
+        var updateResponse = await _client.PutAsJsonAsync(
+            $"/api/organizations/{fitnessClub.Id}/subscription",
+            new UpsertOrganizationSubscriptionRequest
+            {
+                Plan = Domain.Enum.OrganizationSubscriptionPlan.Starter,
+                IsAnalyticsEnabled = false,
+                StartsAtUtc = DateTimeOffset.UtcNow.AddDays(-1),
+                EndsAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+                MonthlyPrice = 99,
+                Currency = "USD"
+            });
+
+        updateResponse.EnsureSuccessStatusCode();
+
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CreateManagerToken());
+        var analytics = await _client.GetFromJsonAsync<OrganizationAnalyticsResponse>(
+            $"/api/organizations/{fitnessClub.Id}/analytics",
+            JsonOptions);
+
+        Assert.That(analytics, Is.Not.Null);
+        Assert.That(analytics!.HasAccess, Is.False);
+        Assert.That(analytics.AccessMessage, Does.Contain("subscription"));
+    }
+
+    [Test]
+    public async Task ReviewProviderJoinRequest_WithManagerToken_ApprovesRequestAndCreatesAffiliation()
+    {
+        var fitnessClub = await GetOrganizationByNameAsync("Pulse Fitness Club");
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CreateManagerToken());
+
+        var requests = await _client.GetFromJsonAsync<IReadOnlyCollection<ProviderOrganizationJoinRequestResponse>>(
+            $"/api/organizations/{fitnessClub.Id}/provider-join-requests",
+            JsonOptions);
+
+        Assert.That(requests, Is.Not.Null);
+        var pendingRequest = requests!.Single(x => x.Status.ToString() == "Pending");
+
+        var reviewResponse = await _client.PostAsJsonAsync(
+            $"/api/organizations/{fitnessClub.Id}/provider-join-requests/{pendingRequest.Id}/review",
+            new ReviewProviderOrganizationJoinRequestRequest
+            {
+                Status = Domain.Enum.ProviderOrganizationJoinRequestStatus.Approved,
+                Title = "Resident Provider",
+                IsPrimary = false,
+                Note = "Approved for the demo"
+            });
+
+        reviewResponse.EnsureSuccessStatusCode();
+        var updatedRequest = await reviewResponse.Content.ReadFromJsonAsync<ProviderOrganizationJoinRequestResponse>(JsonOptions);
+
+        Assert.That(updatedRequest, Is.Not.Null);
+        Assert.That(updatedRequest!.Status.ToString(), Is.EqualTo("Approved"));
+        Assert.That(updatedRequest.Affiliation, Is.Not.Null);
+        Assert.That(updatedRequest.Affiliation!.OrganizationId, Is.EqualTo(fitnessClub.Id));
+    }
+
+    private static string CreateClientToken()
+    {
+        return CreateToken(
+            ClientSubject,
+            "client@bookingflow.local",
+            "Demo",
+            "Client",
+            Array.Empty<string>());
+    }
+
+    private static string CreateManagerToken()
+    {
+        return CreateToken(
+            ManagerSubject,
+            "manager@bookingflow.local",
+            "Sofia",
+            "Manager",
+            new[] { "Manager" });
+    }
+
+    private static string CreateAdminToken()
+    {
+        return CreateToken(
+            AdminSubject,
+            "admin@bookingflow.local",
+            "System",
+            "Admin",
+            new[] { "Admin" });
+    }
+
+    private static string CreateToken(
+        string subject,
+        string email,
+        string firstName,
+        string lastName,
+        IReadOnlyCollection<string> roles)
+    {
+        var claims = new List<Claim>
         {
-            Email = "client@bookingflow.local",
-            Password = "Client123!"
-        });
+            new("sub", subject),
+            new("email", email),
+            new("given_name", firstName),
+            new("family_name", lastName)
+        };
 
-        response.EnsureSuccessStatusCode();
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        var authResponse = await response.Content.ReadFromJsonAsync<AuthResponse>(JsonOptions);
-        return authResponse!.AccessToken;
+        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("bookingflow-tests-signing-key-please-change"));
+        var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: "BookingFlow.Tests",
+            audience: "BookingFlow.Tests.Client",
+            claims: claims,
+            notBefore: DateTime.UtcNow.AddMinutes(-1),
+            expires: DateTime.UtcNow.AddHours(2),
+            signingCredentials: credentials);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     private async Task<(OrganizationResponse Bar, ResourceResponse Table)> GetBarAndTableAsync()

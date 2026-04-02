@@ -17,6 +17,7 @@ internal sealed class BookingFlowApiFactory : WebApplicationFactory<Program>
         {
             var settings = new Dictionary<string, string?>
             {
+                ["Database:Provider"] = "Sqlite",
                 ["ConnectionStrings:DefaultConnection"] = $"Data Source={Path.Combine(_databaseDirectory, "bookingflow.tests.db")}",
                 ["Jwt:Issuer"] = "BookingFlow.Tests",
                 ["Jwt:Audience"] = "BookingFlow.Tests.Client",
