@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { api } from '../lib/api'
 import type {
   CreateProviderOrganizationJoinRequestPayload,
@@ -35,34 +35,34 @@ export function ProviderOrganizationRequestsPanel({
     [affiliations, requests],
   )
 
-  const loadRequests = useEffectEvent(async (isMounted: () => boolean) => {
-    try {
-      setLoading(true)
-      const nextRequests = await api.getMyProviderOrganizationRequests(token)
-      if (isMounted()) {
-        setRequests(nextRequests)
-        setError(null)
-      }
-    } catch (loadError) {
-      if (isMounted()) {
-        setError(loadError instanceof Error ? loadError.message : 'Failed to load requests.')
-      }
-    } finally {
-      if (isMounted()) {
-        setLoading(false)
-      }
-    }
-  })
-
   useEffect(() => {
     let isMounted = true
 
-    void loadRequests(() => isMounted)
+    async function loadRequests() {
+      try {
+        setLoading(true)
+        const nextRequests = await api.getMyProviderOrganizationRequests(token)
+        if (isMounted) {
+          setRequests(nextRequests)
+          setError(null)
+        }
+      } catch (loadError) {
+        if (isMounted) {
+          setError(loadError instanceof Error ? loadError.message : 'Failed to load requests.')
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadRequests()
 
     return () => {
       isMounted = false
     }
-  }, [loadRequests])
+  }, [token])
 
   useEffect(() => {
     if (form.organizationId) {

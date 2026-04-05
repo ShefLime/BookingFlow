@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { HeroSection } from '../components/HeroSection'
 import { LoadingBlock } from '../components/LoadingBlock'
 import { useTrackEntityView } from '../hooks/useTrackEntityView'
 import { useLocale } from '../i18n/LocaleContext'
@@ -168,17 +169,8 @@ export function ResourcePage() {
 
   return (
     <div className="page-stack">
-      <section
-        className="immersive-hero"
-        style={
-          heroImage
-            ? {
-                backgroundImage: `linear-gradient(rgba(11,18,28,0.55), rgba(11,18,28,0.72)), url(${heroImage})`,
-              }
-            : undefined
-        }
-      >
-        <div className="immersive-overlay">
+      <HeroSection imageUrl={heroImage} imageAlt={resource.name}>
+        <div className="section-stack">
           <div className="pill-row">
             <span className="type-pill">{formatResourceType(resource.type, locale)}</span>
             <span
@@ -207,15 +199,9 @@ export function ResourcePage() {
               <h1 className="display-title">{resource.name}</h1>
               <p className="hero-lead">{summary}</p>
               <div className="hero-actions">
-                <button
-                  className="solid-button"
-                  type="button"
-                  onClick={() =>
-                    document.getElementById('booking-panel')?.scrollIntoView({ behavior: 'smooth' })
-                  }
-                >
+                <a href="#booking-panel" className="solid-button">
                   {t('coach.bookSession')}
-                </button>
+                </a>
               </div>
             </div>
 
@@ -246,7 +232,7 @@ export function ResourcePage() {
             </aside>
           </div>
         </div>
-      </section>
+      </HeroSection>
 
       {message ? <div className="message-banner">{message}</div> : null}
       {error ? <div className="error-banner">{error}</div> : null}

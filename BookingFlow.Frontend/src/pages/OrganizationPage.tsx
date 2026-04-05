@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { HeroSection } from '../components/HeroSection'
 import { LoadingBlock } from '../components/LoadingBlock'
 import { useTrackEntityView } from '../hooks/useTrackEntityView'
 import { useLocale } from '../i18n/LocaleContext'
@@ -211,65 +212,50 @@ export function OrganizationPage() {
 
   return (
     <div className="page-stack">
-      <section
-        className="immersive-hero"
-        style={
-          heroImage
-            ? {
-                backgroundImage: `linear-gradient(rgba(11,17,26,0.45), rgba(11,17,26,0.78)), url(${heroImage})`,
-              }
-            : undefined
-        }
-      >
-        <div className="immersive-overlay">
-          <div className="hero-split">
-            <div className="section-stack">
-              <div className="pill-row">
-                <span className="type-pill">{formatOrganizationType(organization.type, locale)}</span>
-                <span className={organization.isActive ? 'status-pill success' : 'status-pill danger'}>
-                  {organization.isActive ? t('organization.available') : t('organization.inactive')}
-                </span>
-              </div>
-              <h1 className="display-title">{heroTitle}</h1>
-              <p className="hero-lead">{heroSubtitle}</p>
-              <div className="hero-actions">
-                <button
-                  className="solid-button"
-                  type="button"
-                  onClick={() => document.getElementById('book-section')?.scrollIntoView({ behavior: 'smooth' })}
-                >
-                  {t('organization.bookNow')}
-                </button>
-              </div>
+      <HeroSection imageUrl={heroImage} imageAlt={organization.name}>
+        <div className="hero-split">
+          <div className="section-stack">
+            <div className="pill-row">
+              <span className="type-pill">{formatOrganizationType(organization.type, locale)}</span>
+              <span className={organization.isActive ? 'status-pill success' : 'status-pill danger'}>
+                {organization.isActive ? t('organization.available') : t('organization.inactive')}
+              </span>
             </div>
-
-            <aside className="glass-panel section-stack">
-              <h2 className="section-title">{organization.name}</h2>
-              <p>{summary}</p>
-              <div className="stacked-meta">
-                <div className="meta-line">
-                  <span className="inline-pill">{t('common.address')}</span>
-                  <span>{organization.address}</span>
-                </div>
-                {organization.city ? (
-                  <div className="meta-line">
-                    <span className="inline-pill">{t('common.city')}</span>
-                    <span>{organization.city}</span>
-                  </div>
-                ) : null}
-                {organization.websiteUrl ? (
-                  <div className="meta-line">
-                    <span className="inline-pill">{t('common.website')}</span>
-                    <a href={organization.websiteUrl} target="_blank" rel="noreferrer">
-                      {organization.websiteUrl}
-                    </a>
-                  </div>
-                ) : null}
-              </div>
-            </aside>
+            <h1 className="display-title">{heroTitle}</h1>
+            <p className="hero-lead">{heroSubtitle}</p>
+            <div className="hero-actions">
+              <a href="#book-section" className="solid-button">
+                {t('organization.bookNow')}
+              </a>
+            </div>
           </div>
+
+          <aside className="glass-panel section-stack">
+            <h2 className="section-title">{organization.name}</h2>
+            <p>{summary}</p>
+            <div className="stacked-meta">
+              <div className="meta-line">
+                <span className="inline-pill">{t('common.address')}</span>
+                <span>{organization.address}</span>
+              </div>
+              {organization.city ? (
+                <div className="meta-line">
+                  <span className="inline-pill">{t('common.city')}</span>
+                  <span>{organization.city}</span>
+                </div>
+              ) : null}
+              {organization.websiteUrl ? (
+                <div className="meta-line">
+                  <span className="inline-pill">{t('common.website')}</span>
+                  <a href={organization.websiteUrl} target="_blank" rel="noreferrer">
+                    {organization.websiteUrl}
+                  </a>
+                </div>
+              ) : null}
+            </div>
+          </aside>
         </div>
-      </section>
+      </HeroSection>
 
       {message ? <div className="message-banner">{message}</div> : null}
       {error ? <div className="error-banner">{error}</div> : null}

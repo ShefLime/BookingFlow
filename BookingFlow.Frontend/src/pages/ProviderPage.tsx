@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { HeroSection } from '../components/HeroSection'
 import { LoadingBlock } from '../components/LoadingBlock'
 import { useLocale } from '../i18n/LocaleContext'
 import { api } from '../lib/api'
@@ -87,56 +88,41 @@ export function ProviderPage() {
 
   return (
     <div className="page-stack">
-      <section
-        className="immersive-hero"
-        style={
-          provider.coverImageUrl
-            ? {
-                backgroundImage: `linear-gradient(rgba(11,17,26,0.45), rgba(11,17,26,0.78)), url(${provider.coverImageUrl})`,
-              }
-            : undefined
-        }
-      >
-        <div className="immersive-overlay">
-          <div className="hero-split">
-            <div className="section-stack">
-              <div className="pill-row">
-                <span className="type-pill">{provider.city ?? provider.timeZone}</span>
-                <span className="metric-pill">{provider.servicesCount} services</span>
-              </div>
-              <h1 className="display-title">{provider.displayName}</h1>
-              <p className="hero-lead">{summary}</p>
-              <div className="hero-actions">
-                <button
-                  className="solid-button"
-                  type="button"
-                  onClick={() => document.getElementById('provider-services')?.scrollIntoView({ behavior: 'smooth' })}
-                >
-                  Explore services
-                </button>
-              </div>
+      <HeroSection imageUrl={provider.coverImageUrl} imageAlt={provider.displayName}>
+        <div className="hero-split">
+          <div className="section-stack">
+            <div className="pill-row">
+              <span className="type-pill">{provider.city ?? provider.timeZone}</span>
+              <span className="metric-pill">{provider.servicesCount} services</span>
             </div>
-
-            <aside className="glass-panel section-stack">
-              {provider.avatarImageUrl ? (
-                <img className="portrait-image" src={provider.avatarImageUrl} alt={provider.displayName} />
-              ) : null}
-              <div className="stacked-meta">
-                <div className="meta-line">
-                  <span className="inline-pill">Headline</span>
-                  <span>{provider.headline}</span>
-                </div>
-                {provider.location ? (
-                  <div className="meta-line">
-                    <span className="inline-pill">Location</span>
-                    <span>{provider.location}</span>
-                  </div>
-                ) : null}
-              </div>
-            </aside>
+            <h1 className="display-title">{provider.displayName}</h1>
+            <p className="hero-lead">{summary}</p>
+            <div className="hero-actions">
+              <a href="#provider-services" className="solid-button">
+                Explore services
+              </a>
+            </div>
           </div>
+
+          <aside className="glass-panel section-stack">
+            {provider.avatarImageUrl ? (
+              <img className="portrait-image" src={provider.avatarImageUrl} alt={provider.displayName} />
+            ) : null}
+            <div className="stacked-meta">
+              <div className="meta-line">
+                <span className="inline-pill">Headline</span>
+                <span>{provider.headline}</span>
+              </div>
+              {provider.location ? (
+                <div className="meta-line">
+                  <span className="inline-pill">Location</span>
+                  <span>{provider.location}</span>
+                </div>
+              ) : null}
+            </div>
+          </aside>
         </div>
-      </section>
+      </HeroSection>
 
       {error ? <div className="error-banner">{error}</div> : null}
 

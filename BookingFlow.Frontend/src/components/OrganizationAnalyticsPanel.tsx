@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
 import { formatDateTime } from '../lib/format'
 import type {
@@ -61,46 +61,46 @@ export function OrganizationAnalyticsPanel({
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const loadAnalytics = useEffectEvent(async (isMounted: () => boolean) => {
-    try {
-      setLoading(true)
-      const [nextSubscription, nextAnalytics] = await Promise.all([
-        api.getOrganizationSubscription(organizationId, token),
-        api.getOrganizationAnalytics(organizationId, token, {
-          fromUtc: new Date(`${fromDate}T00:00:00.000Z`).toISOString(),
-          toUtc: new Date(`${toDate}T23:59:59.999Z`).toISOString(),
-          forecastDays: 30,
-        }),
-      ])
-
-      if (!isMounted()) {
-        return
-      }
-
-      setSubscription(nextSubscription)
-      setSubscriptionForm(toSubscriptionForm(nextSubscription))
-      setAnalytics(nextAnalytics)
-      setError(null)
-    } catch (loadError) {
-      if (isMounted()) {
-        setError(loadError instanceof Error ? loadError.message : 'Failed to load analytics.')
-      }
-    } finally {
-      if (isMounted()) {
-        setLoading(false)
-      }
-    }
-  })
-
   useEffect(() => {
     let isMounted = true
 
-    void loadAnalytics(() => isMounted)
+    async function loadAnalytics() {
+      try {
+        setLoading(true)
+        const [nextSubscription, nextAnalytics] = await Promise.all([
+          api.getOrganizationSubscription(organizationId, token),
+          api.getOrganizationAnalytics(organizationId, token, {
+            fromUtc: new Date(`${fromDate}T00:00:00.000Z`).toISOString(),
+            toUtc: new Date(`${toDate}T23:59:59.999Z`).toISOString(),
+            forecastDays: 30,
+          }),
+        ])
+
+        if (!isMounted) {
+          return
+        }
+
+        setSubscription(nextSubscription)
+        setSubscriptionForm(toSubscriptionForm(nextSubscription))
+        setAnalytics(nextAnalytics)
+        setError(null)
+      } catch (loadError) {
+        if (isMounted) {
+          setError(loadError instanceof Error ? loadError.message : 'Failed to load analytics.')
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadAnalytics()
 
     return () => {
       isMounted = false
     }
-  }, [fromDate, organizationId, toDate, loadAnalytics])
+  }, [fromDate, organizationId, toDate, token])
 
   async function handleSaveSubscription() {
     try {

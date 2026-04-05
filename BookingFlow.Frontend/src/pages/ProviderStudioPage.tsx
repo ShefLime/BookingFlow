@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { LoadingBlock } from '../components/LoadingBlock'
 import { ProviderOrganizationRequestsPanel } from '../components/ProviderOrganizationRequestsPanel'
@@ -266,7 +266,6 @@ export function ProviderStudioPage() {
   const { session, refreshProfile, user } = useAuth()
   const { locale } = useLocale()
   const token = session?.accessToken
-  const hasToken = Boolean(token)
   const [profile, setProfile] = useState<ProviderProfile | null>(null)
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [services, setServices] = useState<Resource[]>([])
@@ -281,99 +280,96 @@ export function ProviderStudioPage() {
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const loadProviderStudio = useEffectEvent(async (isMounted: () => boolean) => {
+  useEffect(() => {
     if (!token) {
       return
     }
 
-    try {
-      setLoading(true)
-      const [nextProfile, nextServices, nextOrganizations] = await Promise.all([
-        api.getMyProviderProfile(token),
-        api.getMyProviderResources(token),
-        api.getOrganizations(),
-      ])
+    const accessToken = token
+    let isMounted = true
 
-      if (!isMounted()) {
+    async function loadProviderStudio() {
+      try {
+        setLoading(true)
+        const [nextProfile, nextServices, nextOrganizations] = await Promise.all([
+          api.getMyProviderProfile(accessToken),
+          api.getMyProviderResources(accessToken),
+          api.getOrganizations(),
+        ])
+
+        if (!isMounted) {
+          return
+        }
+
+        setProfile(nextProfile)
+        setOrganizations(nextOrganizations)
+        setServices(nextServices)
+        setSelectedServiceId((current) => current || nextServices[0]?.id || '')
+        setRuleForm(buildRuleForm(nextServices[0]?.id ?? ''))
+
+        if (nextProfile) {
+          setProfileForm({
+            displayName: nextProfile.displayName,
+            headline: nextProfile.headline,
+            city: nextProfile.city ?? '',
+            timeZone: nextProfile.timeZone,
+            location: nextProfile.location ?? '',
+            avatarImageUrl: nextProfile.avatarImageUrl ?? '',
+            coverImageUrl: nextProfile.coverImageUrl ?? '',
+            gallery: nextProfile.gallery,
+            documents: nextProfile.documents,
+            content: nextProfile.content,
+          })
+        }
+
+        setError(null)
+      } catch (loadError) {
+        if (isMounted) {
+          setError(loadError instanceof Error ? loadError.message : 'Failed to load provider studio.')
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadProviderStudio()
+
+    return () => {
+      isMounted = false
+    }
+  }, [token])
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadRules() {
+      if (!selectedServiceId) {
+        if (isMounted) {
+          setRules([])
+        }
         return
       }
 
-      setProfile(nextProfile)
-      setOrganizations(nextOrganizations)
-      setServices(nextServices)
-      setSelectedServiceId((current) => current || nextServices[0]?.id || '')
-      setRuleForm(buildRuleForm(nextServices[0]?.id ?? ''))
-
-      if (nextProfile) {
-        setProfileForm({
-          displayName: nextProfile.displayName,
-          headline: nextProfile.headline,
-          city: nextProfile.city ?? '',
-          timeZone: nextProfile.timeZone,
-          location: nextProfile.location ?? '',
-          avatarImageUrl: nextProfile.avatarImageUrl ?? '',
-          coverImageUrl: nextProfile.coverImageUrl ?? '',
-          gallery: nextProfile.gallery,
-          documents: nextProfile.documents,
-          content: nextProfile.content,
-        })
-      }
-
-      setError(null)
-    } catch (loadError) {
-      if (isMounted()) {
-        setError(loadError instanceof Error ? loadError.message : 'Failed to load provider studio.')
-      }
-    } finally {
-      if (isMounted()) {
-        setLoading(false)
+      try {
+        const nextRules = await api.getAvailabilityRules(selectedServiceId)
+        if (isMounted) {
+          setRules(nextRules)
+        }
+      } catch {
+        if (isMounted) {
+          setRules([])
+        }
       }
     }
-  })
 
-  const loadRules = useEffectEvent(async (isMounted: () => boolean) => {
-    if (!selectedServiceId) {
-      if (isMounted()) {
-        setRules([])
-      }
-      return
-    }
-
-    try {
-      const nextRules = await api.getAvailabilityRules(selectedServiceId)
-      if (isMounted()) {
-        setRules(nextRules)
-      }
-    } catch {
-      if (isMounted()) {
-        setRules([])
-      }
-    }
-  })
-
-  useEffect(() => {
-    if (!token) {
-      return
-    }
-
-    let isMounted = true
-
-    void loadProviderStudio(() => isMounted)
+    void loadRules()
 
     return () => {
       isMounted = false
     }
-  }, [hasToken, loadProviderStudio])
-
-  useEffect(() => {
-    let isMounted = true
-
-    void loadRules(() => isMounted)
-
-    return () => {
-      isMounted = false
-    }
-  }, [selectedServiceId, loadRules])
+  }, [selectedServiceId])
 
   const selectedService = useMemo(
     () => services.find((service) => service.id === selectedServiceId) ?? null,

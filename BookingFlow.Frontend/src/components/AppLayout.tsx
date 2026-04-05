@@ -62,7 +62,7 @@ export function AppLayout() {
                     </small>
                   </div>
                 </div>
-                <button className="ghost-button" onClick={() => void logout()}>
+                <button className="ghost-button" type="button" onClick={() => void logout()}>
                   {t('auth.signOut')}
                 </button>
               </>

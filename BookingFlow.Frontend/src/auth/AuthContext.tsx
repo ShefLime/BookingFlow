@@ -3,7 +3,6 @@ import {
   startTransition,
   useContext,
   useEffect,
-  useEffectEvent,
   useMemo,
   useRef,
   useState,
@@ -44,7 +43,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     sessionRef.current = session
   }, [session])
 
-  const synchronizeSession = useEffectEvent(async (withProfile: boolean) => {
+  async function synchronizeSession(withProfile: boolean) {
     const keycloak = getKeycloak()
     if (!keycloak.authenticated || !keycloak.token) {
       startTransition(() => {
@@ -54,8 +53,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
       return null
     }
 
+    const currentSession = sessionRef.current
     const currentUser =
-      withProfile || !session?.user ? await api.getCurrentUser(keycloak.token) : session.user
+      withProfile || !currentSession?.user
+        ? await api.getCurrentUser(keycloak.token)
+        : currentSession.user
 
     const nextSession: AuthSession = {
       accessToken: keycloak.token,
@@ -64,12 +66,24 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
 
     startTransition(() => {
-      setSession(nextSession)
+      setSession((current) => {
+        if (
+          current &&
+          current.accessToken === nextSession.accessToken &&
+          current.expiresAtUtc === nextSession.expiresAtUtc &&
+          current.user.userId === nextSession.user.userId
+        ) {
+          return current
+        }
+
+        return nextSession
+      })
       setError(null)
     })
 
+    sessionRef.current = nextSession
     return nextSession
-  })
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -115,7 +129,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     return () => {
       cancelled = true
     }
-  }, [synchronizeSession])
+  }, [])
 
   useEffect(() => {
     if (!session) {
@@ -185,7 +199,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     return () => {
       window.clearInterval(intervalId)
     }
-  }, [session !== null])
+  }, [session?.accessToken])
 
   const value = useMemo<AuthContextValue>(() => {
     const roles = session?.user.roles ?? []
@@ -223,7 +237,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         return synchronizeSession(true)
       },
     }
-  }, [error, isLoading, session, synchronizeSession])
+  }, [error, isLoading, session])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

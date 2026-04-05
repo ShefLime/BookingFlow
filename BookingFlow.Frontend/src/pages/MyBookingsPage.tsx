@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { LoadingBlock } from '../components/LoadingBlock'
 import { useAuth } from '../auth/AuthContext'
 import { useLocale } from '../i18n/LocaleContext'
@@ -132,50 +132,47 @@ export function MyBookingsPage() {
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const loadBookings = useEffectEvent(async (isMounted: () => boolean) => {
-    if (!token) {
-      return
-    }
-
-    try {
-      setLoading(true)
-      const data = await api.getMyBookings(token)
-      if (!isMounted()) {
-        return
-      }
-
-      setBookings(data)
-      setSelectedDates(
-        data.reduce<DatesByBooking>((accumulator, booking) => {
-          accumulator[booking.id] = getDefaultBookingDate()
-          return accumulator
-        }, {}),
-      )
-      setError(null)
-    } catch (loadError) {
-      if (isMounted()) {
-        setError(loadError instanceof Error ? loadError.message : copy.loadError)
-      }
-    } finally {
-      if (isMounted()) {
-        setLoading(false)
-      }
-    }
-  })
-
   useEffect(() => {
     if (!token) {
       return
     }
 
+    const accessToken = token
     let isMounted = true
 
-    void loadBookings(() => isMounted)
+    async function loadBookings() {
+      try {
+        setLoading(true)
+        const data = await api.getMyBookings(accessToken)
+        if (!isMounted) {
+          return
+        }
+
+        setBookings(data)
+        setSelectedDates(
+          data.reduce<DatesByBooking>((accumulator, booking) => {
+            accumulator[booking.id] = getDefaultBookingDate()
+            return accumulator
+          }, {}),
+        )
+        setError(null)
+      } catch (loadError) {
+        if (isMounted) {
+          setError(loadError instanceof Error ? loadError.message : copy.loadError)
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadBookings()
 
     return () => {
       isMounted = false
     }
-  }, [copy.loadError, hasToken, loadBookings])
+  }, [copy.loadError, hasToken, token])
 
   if (!token) {
     return null

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { HeroSection } from '../components/HeroSection'
 import { LoadingBlock } from '../components/LoadingBlock'
 import { useTrackEntityView } from '../hooks/useTrackEntityView'
 import { useLocale } from '../i18n/LocaleContext'
@@ -116,62 +117,51 @@ export function EventPage() {
 
   return (
     <div className="page-stack">
-      <section
-        className="immersive-hero"
-        style={
-          eventSession.posterImageUrl
-            ? {
-                backgroundImage: `linear-gradient(rgba(11,17,26,0.45), rgba(11,17,26,0.78)), url(${eventSession.posterImageUrl})`,
-              }
-            : undefined
-        }
-      >
-        <div className="immersive-overlay">
-          <div className="hero-split">
-            <div className="section-stack">
-              <Link to={`/organizations/${eventSession.organizationId}`} className="back-link">
-                {organization?.name ?? eventSession.organizationName}
-              </Link>
-              <div className="pill-row">
-                <span className="type-pill">{eventSession.location}</span>
-                <span className="metric-pill">{eventSession.remainingCapacity}</span>
-              </div>
-              <h1 className="display-title">{eventSession.name}</h1>
-              <p className="hero-lead">{summary}</p>
-              <div className="hero-actions">
-                <button
-                  className="solid-button"
-                  type="button"
-                  disabled={saving || eventSession.remainingCapacity < 1}
-                  onClick={() => void handleBook()}
-                >
-                  {t('organization.bookNow')}
-                </button>
-                {!isAuthenticated ? (
-                  <Link to="/auth" className="ghost-button">
-                    {t('auth.signIn')}
-                  </Link>
-                ) : null}
-              </div>
+      <HeroSection imageUrl={eventSession.posterImageUrl} imageAlt={eventSession.name}>
+        <div className="hero-split">
+          <div className="section-stack">
+            <Link to={`/organizations/${eventSession.organizationId}`} className="back-link">
+              {organization?.name ?? eventSession.organizationName}
+            </Link>
+            <div className="pill-row">
+              <span className="type-pill">{eventSession.location}</span>
+              <span className="metric-pill">{eventSession.remainingCapacity}</span>
             </div>
-
-            <aside className="glass-panel section-stack">
-              <div className="meta-line">
-                <span className="inline-pill">Date</span>
-                <span>{formatDateTime(eventSession.startAtUtc, locale)}</span>
-              </div>
-              <div className="meta-line">
-                <span className="inline-pill">{t('common.address')}</span>
-                <span>{eventSession.location}</span>
-              </div>
-              <div className="meta-line">
-                <span className="inline-pill">Seats</span>
-                <span>{eventSession.remainingCapacity}</span>
-              </div>
-            </aside>
+            <h1 className="display-title">{eventSession.name}</h1>
+            <p className="hero-lead">{summary}</p>
+            <div className="hero-actions">
+              <button
+                className="solid-button"
+                type="button"
+                disabled={saving || eventSession.remainingCapacity < 1}
+                onClick={() => void handleBook()}
+              >
+                {t('organization.bookNow')}
+              </button>
+              {!isAuthenticated ? (
+                <Link to="/auth" className="ghost-button">
+                  {t('auth.signIn')}
+                </Link>
+              ) : null}
+            </div>
           </div>
+
+          <aside className="glass-panel section-stack">
+            <div className="meta-line">
+              <span className="inline-pill">Date</span>
+              <span>{formatDateTime(eventSession.startAtUtc, locale)}</span>
+            </div>
+            <div className="meta-line">
+              <span className="inline-pill">{t('common.address')}</span>
+              <span>{eventSession.location}</span>
+            </div>
+            <div className="meta-line">
+              <span className="inline-pill">Seats</span>
+              <span>{eventSession.remainingCapacity}</span>
+            </div>
+          </aside>
         </div>
-      </section>
+      </HeroSection>
 
       {message ? <div className="message-banner">{message}</div> : null}
       {error ? <div className="error-banner">{error}</div> : null}

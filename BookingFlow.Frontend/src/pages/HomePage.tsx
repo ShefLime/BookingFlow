@@ -1,6 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { HeroSection } from '../components/HeroSection'
 import { LoadingBlock } from '../components/LoadingBlock'
 import { useLocale } from '../i18n/LocaleContext'
 import { api } from '../lib/api'
@@ -119,74 +120,63 @@ export function HomePage() {
 
   return (
     <div className="page-stack">
-      <section
-        className="immersive-hero"
-        style={
-          heroOrganization?.coverImageUrl
-            ? {
-                backgroundImage: `linear-gradient(rgba(10,14,22,0.42), rgba(10,14,22,0.76)), url(${heroOrganization.coverImageUrl})`,
-              }
-            : undefined
-        }
-      >
-        <div className="immersive-overlay">
-          <div className="hero-split">
-            <div className="section-stack">
-              <span className="section-kicker">{t('home.heroKicker')}</span>
-              <h1 className="display-title">{t('home.heroTitle')}</h1>
-              <p className="hero-lead">{t('home.heroSubtitle')}</p>
+      <HeroSection imageUrl={heroOrganization?.coverImageUrl} imageAlt={heroOrganization?.name ?? 'BookingFlow'}>
+        <div className="hero-split">
+          <div className="section-stack">
+            <span className="section-kicker">{t('home.heroKicker')}</span>
+            <h1 className="display-title">{t('home.heroTitle')}</h1>
+            <p className="hero-lead">{t('home.heroSubtitle')}</p>
 
-              <div className="hero-actions">
-                <Link to="/" className="solid-button">
-                  {t('home.explore')}
+            <div className="hero-actions">
+              <a href="#catalog-section" className="solid-button">
+                {t('home.explore')}
+              </a>
+
+              {isAuthenticated ? (
+                <Link to={dashboardHref} className="ghost-button">
+                  {dashboardLabel}
                 </Link>
-
-                {isAuthenticated ? (
-                  <Link to={dashboardHref} className="ghost-button">
-                    {dashboardLabel}
-                  </Link>
-                ) : (
-                  <Link to="/auth" className="ghost-button">
-                    {t('home.login')}
-                  </Link>
-                )}
-              </div>
+              ) : (
+                <Link to="/auth" className="ghost-button">
+                  {t('home.login')}
+                </Link>
+              )}
             </div>
-
-            <aside className="glass-panel section-stack">
-              {heroOrganization ? (
-                <>
-                  <span className="type-pill">{formatOrganizationType(heroOrganization.type, locale)}</span>
-                  <h2 className="section-title">{heroOrganization.name}</h2>
-                  <p>
-                    {pickLocalizedText(
-                      heroOrganization.content.heroSubtitle,
-                      locale,
-                      heroOrganization.description,
-                    )}
-                  </p>
-                  <div className="pill-row">
-                    {pickLocalizedList(heroOrganization.content.amenities, locale)
-                      .slice(0, 3)
-                      .map((item) => (
-                        <span key={item} className="chip-pill">
-                          {item}
-                        </span>
-                      ))}
-                  </div>
-                  <Link to={`/organizations/${heroOrganization.id}`} className="primary-link-button">
-                    {t('organization.bookNow')}
-                  </Link>
-                </>
-              ) : null}
-            </aside>
           </div>
+
+          <aside className="glass-panel section-stack">
+            {heroOrganization ? (
+              <>
+                <span className="type-pill">{formatOrganizationType(heroOrganization.type, locale)}</span>
+                <h2 className="section-title">{heroOrganization.name}</h2>
+                <p>
+                  {pickLocalizedText(
+                    heroOrganization.content.heroSubtitle,
+                    locale,
+                    heroOrganization.description,
+                  )}
+                </p>
+                <div className="pill-row">
+                  {pickLocalizedList(heroOrganization.content.amenities, locale)
+                    .slice(0, 3)
+                    .map((item) => (
+                      <span key={item} className="chip-pill">
+                        {item}
+                      </span>
+                    ))}
+                </div>
+                <Link to={`/organizations/${heroOrganization.id}`} className="primary-link-button">
+                  {t('organization.bookNow')}
+                </Link>
+              </>
+            ) : null}
+          </aside>
         </div>
-      </section>
+      </HeroSection>
 
       {error ? <div className="error-banner">{error}</div> : null}
 
-      <section className="surface-card section-stack">
+      <section className="surface-card section-stack" id="catalog-section">
         <header className="toolbar">
           <div>
             <span className="section-kicker">{t('home.popularOrgs')}</span>

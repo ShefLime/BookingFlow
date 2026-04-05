@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
 import type { ProviderOrganizationJoinRequest } from '../types/api'
 
@@ -16,34 +16,34 @@ export function OrganizationJoinRequestsPanel({
   const [workingId, setWorkingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const loadRequests = useEffectEvent(async (isMounted: () => boolean) => {
-    try {
-      setLoading(true)
-      const nextRequests = await api.getOrganizationProviderJoinRequests(organizationId, token)
-      if (isMounted()) {
-        setRequests(nextRequests)
-        setError(null)
-      }
-    } catch (loadError) {
-      if (isMounted()) {
-        setError(loadError instanceof Error ? loadError.message : 'Failed to load provider requests.')
-      }
-    } finally {
-      if (isMounted()) {
-        setLoading(false)
-      }
-    }
-  })
-
   useEffect(() => {
     let isMounted = true
 
-    void loadRequests(() => isMounted)
+    async function loadRequests() {
+      try {
+        setLoading(true)
+        const nextRequests = await api.getOrganizationProviderJoinRequests(organizationId, token)
+        if (isMounted) {
+          setRequests(nextRequests)
+          setError(null)
+        }
+      } catch (loadError) {
+        if (isMounted) {
+          setError(loadError instanceof Error ? loadError.message : 'Failed to load provider requests.')
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadRequests()
 
     return () => {
       isMounted = false
     }
-  }, [organizationId, loadRequests])
+  }, [organizationId, token])
 
   async function reviewRequest(requestId: string, status: 'Approved' | 'Rejected') {
     try {

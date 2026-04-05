@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { LoadingBlock } from '../components/LoadingBlock'
 import { OrganizationAnalyticsPanel } from '../components/OrganizationAnalyticsPanel'
 import { OrganizationJoinRequestsPanel } from '../components/OrganizationJoinRequestsPanel'
@@ -315,7 +315,6 @@ export function AdminPage() {
   const { session, user } = useAuth()
   const { locale, t } = useLocale()
   const token = session?.accessToken
-  const hasToken = Boolean(token)
   const isAdmin = session?.user.roles.includes('Admin') ?? false
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [selectedOrganizationId, setSelectedOrganizationId] = useState('')
@@ -349,115 +348,113 @@ export function AdminPage() {
     return organizations.filter((organization) => allowedIds.has(organization.id))
   }, [isAdmin, organizations, user?.memberships])
 
-  const loadAdminStudio = useEffectEvent(async (isMounted: () => boolean) => {
+  useEffect(() => {
     if (!token) {
       return
     }
 
-    try {
-      setLoading(true)
-      const [nextOrganizations, nextUsers, nextProviderProfiles, nextProviderResources] =
-        await Promise.all([
-          api.getOrganizations(true),
-          isAdmin ? api.getAdminUsers(token) : Promise.resolve([]),
-          isAdmin ? api.getProviderProfilesForReview(token) : Promise.resolve([]),
-          isAdmin ? api.getProviderResourcesForReview(token) : Promise.resolve([]),
+    const accessToken = token
+    let isMounted = true
+
+    async function loadAdminStudio() {
+      try {
+        setLoading(true)
+        const [nextOrganizations, nextUsers, nextProviderProfiles, nextProviderResources] =
+          await Promise.all([
+            api.getOrganizations(true),
+            isAdmin ? api.getAdminUsers(accessToken) : Promise.resolve([]),
+            isAdmin ? api.getProviderProfilesForReview(accessToken) : Promise.resolve([]),
+            isAdmin ? api.getProviderResourcesForReview(accessToken) : Promise.resolve([]),
+          ])
+
+        if (!isMounted) {
+          return
+        }
+
+        const initialOrganizationId =
+          (selectedOrganizationId &&
+          nextOrganizations.some((organization) => organization.id === selectedOrganizationId)
+            ? selectedOrganizationId
+            : '') ||
+          nextOrganizations[0]?.id ||
+          user?.memberships[0]?.organizationId ||
+          ''
+
+        setOrganizations(nextOrganizations)
+        setUsers(nextUsers)
+        setProviderProfiles(nextProviderProfiles)
+        setProviderResources(nextProviderResources)
+        setSelectedOrganizationId(initialOrganizationId)
+        setResourceForm((current) => ({
+          ...current,
+          organizationId: initialOrganizationId,
+        }))
+        setEventForm((current) => ({
+          ...current,
+          organizationId: initialOrganizationId,
+        }))
+        setMembershipForm((current) => ({
+          ...current,
+          organizationId: initialOrganizationId,
+        }))
+        setError(null)
+      } catch (loadError) {
+        if (isMounted) {
+          setError(loadError instanceof Error ? loadError.message : 'Failed to load admin studio.')
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadAdminStudio()
+
+    return () => {
+      isMounted = false
+    }
+  }, [isAdmin, selectedOrganizationId, token, user?.memberships])
+
+  useEffect(() => {
+    const accessToken = token
+    let isMounted = true
+
+    async function loadOrganizationDetails() {
+      if (!accessToken || !selectedOrganizationId) {
+        if (isMounted) {
+          setOrganizationResources([])
+          setOrganizationEvents([])
+        }
+        return
+      }
+
+      try {
+        const [nextResources, nextEvents] = await Promise.all([
+          api.getResources(selectedOrganizationId, true),
+          api.getEvents(selectedOrganizationId, true),
         ])
 
-      if (!isMounted()) {
-        return
-      }
+        if (!isMounted) {
+          return
+        }
 
-      const initialOrganizationId =
-        (selectedOrganizationId &&
-        nextOrganizations.some((organization) => organization.id === selectedOrganizationId)
-          ? selectedOrganizationId
-          : '') ||
-        nextOrganizations[0]?.id ||
-        user?.memberships[0]?.organizationId ||
-        ''
-
-      setOrganizations(nextOrganizations)
-      setUsers(nextUsers)
-      setProviderProfiles(nextProviderProfiles)
-      setProviderResources(nextProviderResources)
-      setSelectedOrganizationId(initialOrganizationId)
-      setResourceForm((current) => ({
-        ...current,
-        organizationId: initialOrganizationId,
-      }))
-      setEventForm((current) => ({
-        ...current,
-        organizationId: initialOrganizationId,
-      }))
-      setMembershipForm((current) => ({
-        ...current,
-        organizationId: initialOrganizationId,
-      }))
-      setError(null)
-    } catch (loadError) {
-      if (isMounted()) {
-        setError(loadError instanceof Error ? loadError.message : 'Failed to load admin studio.')
-      }
-    } finally {
-      if (isMounted()) {
-        setLoading(false)
+        setOrganizationResources(nextResources)
+        setOrganizationEvents(nextEvents)
+      } catch {
+        if (isMounted) {
+          setOrganizationResources([])
+          setOrganizationEvents([])
+        }
       }
     }
-  })
 
-  const loadOrganizationDetails = useEffectEvent(async (isMounted: () => boolean) => {
-    if (!token || !selectedOrganizationId) {
-      if (isMounted()) {
-        setOrganizationResources([])
-        setOrganizationEvents([])
-      }
-      return
-    }
-
-    try {
-      const [nextResources, nextEvents] = await Promise.all([
-        api.getResources(selectedOrganizationId, true),
-        api.getEvents(selectedOrganizationId, true),
-      ])
-
-      if (!isMounted()) {
-        return
-      }
-
-      setOrganizationResources(nextResources)
-      setOrganizationEvents(nextEvents)
-    } catch {
-      if (isMounted()) {
-        setOrganizationResources([])
-        setOrganizationEvents([])
-      }
-    }
-  })
-
-  useEffect(() => {
-    if (!token) {
-      return
-    }
-
-    let isMounted = true
-
-    void loadAdminStudio(() => isMounted)
+    void loadOrganizationDetails()
 
     return () => {
       isMounted = false
     }
-  }, [hasToken, isAdmin, user?.memberships, loadAdminStudio])
-
-  useEffect(() => {
-    let isMounted = true
-
-    void loadOrganizationDetails(() => isMounted)
-
-    return () => {
-      isMounted = false
-    }
-  }, [hasToken, selectedOrganizationId, loadOrganizationDetails])
+  }, [selectedOrganizationId, token])
 
   if (!token) {
     return null
