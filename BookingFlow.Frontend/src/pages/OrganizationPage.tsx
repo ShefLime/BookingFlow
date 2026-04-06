@@ -8,6 +8,7 @@ import { useLocale } from '../i18n/LocaleContext'
 import { api } from '../lib/api'
 import {
   formatDateTime,
+  formatMoney,
   formatOrganizationType,
   formatResourceType,
   getDefaultBookingDate,
@@ -19,10 +20,58 @@ import type { AvailableSlot, EventSession, Organization, Resource } from '../typ
 type SlotsByResource = Record<string, AvailableSlot[]>
 type DatesByResource = Record<string, string>
 
+function getOrganizationCopy(locale: 'ru' | 'en' | 'vi') {
+  return {
+    ru: {
+      notFound: 'Организация не найдена',
+      loadFailed: 'Не удалось загрузить организацию.',
+      slotsFailed: 'Не удалось загрузить слоты.',
+      bookingFailed: 'Не удалось создать бронь.',
+      eventBookingFailed: 'Не удалось записаться на событие.',
+      noCoaches: 'Пока нет тренеров',
+      noResources: 'Пока нет доступных форматов',
+      noEvents: 'Пока нет событий',
+      date: 'Дата',
+      details: 'Подробнее',
+      resourcesTitle: 'Запись по форматам',
+      minutes: 'мин',
+    },
+    en: {
+      notFound: 'Organization not found',
+      loadFailed: 'Failed to load organization.',
+      slotsFailed: 'Failed to load slots.',
+      bookingFailed: 'Booking failed.',
+      eventBookingFailed: 'Event booking failed.',
+      noCoaches: 'No coaches yet',
+      noResources: 'No bookable formats yet',
+      noEvents: 'No events yet',
+      date: 'Date',
+      details: 'Details',
+      resourcesTitle: 'Book available formats',
+      minutes: 'min',
+    },
+    vi: {
+      notFound: 'Khong tim thay to chuc',
+      loadFailed: 'Khong the tai to chuc.',
+      slotsFailed: 'Khong the tai khung gio.',
+      bookingFailed: 'Khong the tao lich dat.',
+      eventBookingFailed: 'Khong the dat su kien.',
+      noCoaches: 'Chua co huong dan vien',
+      noResources: 'Chua co hinh thuc dat lich',
+      noEvents: 'Chua co su kien',
+      date: 'Ngay',
+      details: 'Chi tiet',
+      resourcesTitle: 'Dat theo hinh thuc',
+      minutes: 'phut',
+    },
+  }[locale]
+}
+
 export function OrganizationPage() {
   const { organizationId } = useParams()
   const navigate = useNavigate()
   const { locale, t } = useLocale()
+  const copy = getOrganizationCopy(locale)
   const { session, isAuthenticated } = useAuth()
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [resources, setResources] = useState<Resource[]>([])
@@ -37,7 +86,7 @@ export function OrganizationPage() {
 
   useEffect(() => {
     if (!organizationId) {
-      setError('Organization not found.')
+      setError(copy.notFound)
       setLoading(false)
       return
     }
@@ -79,7 +128,7 @@ export function OrganizationPage() {
         setError(null)
       } catch (loadError) {
         if (isMounted) {
-          setError(loadError instanceof Error ? loadError.message : 'Failed to load organization.')
+          setError(loadError instanceof Error ? loadError.message : copy.loadFailed)
         }
       } finally {
         if (isMounted) {
@@ -93,7 +142,7 @@ export function OrganizationPage() {
     return () => {
       isMounted = false
     }
-  }, [organizationId])
+  }, [copy.loadFailed, copy.notFound, organizationId])
 
   useTrackEntityView('Organization', organization?.id)
 
@@ -117,7 +166,7 @@ export function OrganizationPage() {
       const slots = await api.getAvailability(resourceId, date)
       setSlotsByResourceId((current) => ({ ...current, [resourceId]: slots.filter((slot) => slot.isAvailable) }))
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : 'Failed to load slots.')
+      setError(loadError instanceof Error ? loadError.message : copy.slotsFailed)
     }
   }
 
@@ -143,7 +192,7 @@ export function OrganizationPage() {
       setMessage(`${booking.resourceName ?? resource.name}: ${t('common.confirmed')}.`)
       await refreshAvailability(resource.id, selectedDates[resource.id] ?? getDefaultBookingDate())
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Booking failed.')
+      setError(submitError instanceof Error ? submitError.message : copy.bookingFailed)
     } finally {
       setSavingResourceId(null)
     }
@@ -170,7 +219,7 @@ export function OrganizationPage() {
       const nextEvents = await api.getEvents(organization.id)
       setEvents(nextEvents)
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Event booking failed.')
+      setError(submitError instanceof Error ? submitError.message : copy.eventBookingFailed)
     } finally {
       setSavingEventId(null)
     }
@@ -183,7 +232,7 @@ export function OrganizationPage() {
   if (!organization) {
     return (
       <div className="empty-state">
-        <h2>Organization not found</h2>
+        <h2>{copy.notFound}</h2>
         <div className="card-actions">
           <Link to="/" className="solid-button">
             {t('home.explore')}
@@ -314,7 +363,7 @@ export function OrganizationPage() {
 
         {coaches.length === 0 ? (
           <div className="empty-state">
-            <h3>No coaches yet</h3>
+            <h3>{copy.noCoaches}</h3>
           </div>
         ) : (
           <div className="three-column-grid">
@@ -330,7 +379,9 @@ export function OrganizationPage() {
                         {coach.experienceYears}+
                       </span>
                     ) : null}
-                    {coach.priceFrom ? <span className="metric-pill">${coach.priceFrom}</span> : null}
+                    {coach.priceFrom ? (
+                      <span className="metric-pill">{formatMoney(coach.priceFrom, 'USD', locale)}</span>
+                    ) : null}
                   </div>
                   <h3>{coach.name}</h3>
                   <p>{pickLocalizedText(coach.content.summary, locale, coach.description ?? '')}</p>
@@ -358,12 +409,12 @@ export function OrganizationPage() {
       <section className="surface-card section-stack" id="book-section">
         <header>
           <span className="section-kicker">{t('organization.resources')}</span>
-          <h2 className="section-title">{t('organization.resources')}</h2>
+          <h2 className="section-title">{copy.resourcesTitle}</h2>
         </header>
 
         {bookableResources.length === 0 ? (
           <div className="empty-state">
-            <h3>No bookable resources</h3>
+            <h3>{copy.noResources}</h3>
           </div>
         ) : (
           <div className="two-column-grid">
@@ -372,14 +423,19 @@ export function OrganizationPage() {
                 <header className="section-stack">
                   <div className="pill-row">
                     <span className="type-pill">{formatResourceType(resource.type, locale)}</span>
-                    <span className="metric-pill">{resource.slotSizeMinutes} min</span>
+                    <span className="metric-pill">
+                      {resource.slotSizeMinutes} {copy.minutes}
+                    </span>
+                    {resource.priceFrom ? (
+                      <span className="metric-pill">{formatMoney(resource.priceFrom, 'USD', locale)}</span>
+                    ) : null}
                   </div>
                   <h3>{resource.name}</h3>
-                  <p>{resource.description}</p>
+                  <p>{pickLocalizedText(resource.content.summary, locale, resource.description ?? '')}</p>
                 </header>
 
                 <div className="field-group">
-                  <label htmlFor={`resource-date-${resource.id}`}>Date</label>
+                  <label htmlFor={`resource-date-${resource.id}`}>{copy.date}</label>
                   <input
                     id={`resource-date-${resource.id}`}
                     className="input-field"
@@ -436,7 +492,7 @@ export function OrganizationPage() {
 
         {upcomingEvents.length === 0 ? (
           <div className="empty-state">
-            <h3>No events yet</h3>
+            <h3>{copy.noEvents}</h3>
           </div>
         ) : (
           <div className="two-column-grid">
@@ -455,7 +511,7 @@ export function OrganizationPage() {
                   <div className="meta-line">{formatDateTime(eventSession.startAtUtc, locale)}</div>
                   <div className="card-actions">
                     <Link to={`/events/${eventSession.id}`} className="ghost-button">
-                      Details
+                      {copy.details}
                     </Link>
                     <button
                       type="button"

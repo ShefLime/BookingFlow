@@ -8,6 +8,7 @@ import { useLocale } from '../i18n/LocaleContext'
 import { api } from '../lib/api'
 import {
   formatDateTime,
+  formatMoney,
   formatModerationStatus,
   formatResourceType,
   getDefaultBookingDate,
@@ -16,10 +17,40 @@ import {
 } from '../lib/format'
 import type { AvailableSlot, Organization, ProviderProfile, Resource } from '../types/api'
 
+function getResourceCopy(locale: 'ru' | 'en' | 'vi') {
+  return {
+    ru: {
+      notFound: 'Ресурс не найден',
+      loadFailed: 'Не удалось загрузить ресурс.',
+      bookingFailed: 'Не удалось создать бронь.',
+      date: 'Дата',
+      place: 'Локация',
+      from: 'от',
+    },
+    en: {
+      notFound: 'Resource not found',
+      loadFailed: 'Failed to load resource.',
+      bookingFailed: 'Booking failed.',
+      date: 'Date',
+      place: 'Location',
+      from: 'from',
+    },
+    vi: {
+      notFound: 'Khong tim thay dich vu',
+      loadFailed: 'Khong the tai dich vu.',
+      bookingFailed: 'Khong the tao lich dat.',
+      date: 'Ngay',
+      place: 'Dia diem',
+      from: 'tu',
+    },
+  }[locale]
+}
+
 export function ResourcePage() {
   const { resourceId } = useParams()
   const navigate = useNavigate()
   const { locale, t } = useLocale()
+  const copy = getResourceCopy(locale)
   const { session, isAuthenticated } = useAuth()
   const [resource, setResource] = useState<Resource | null>(null)
   const [organization, setOrganization] = useState<Organization | null>(null)
@@ -33,7 +64,7 @@ export function ResourcePage() {
 
   useEffect(() => {
     if (!resourceId) {
-      setError('Resource not found.')
+      setError(copy.notFound)
       setLoading(false)
       return
     }
@@ -65,7 +96,7 @@ export function ResourcePage() {
         setError(null)
       } catch (loadError) {
         if (isMounted) {
-          setError(loadError instanceof Error ? loadError.message : 'Failed to load resource.')
+          setError(loadError instanceof Error ? loadError.message : copy.loadFailed)
         }
       } finally {
         if (isMounted) {
@@ -79,7 +110,7 @@ export function ResourcePage() {
     return () => {
       isMounted = false
     }
-  }, [resourceId])
+  }, [copy.loadFailed, copy.notFound, resourceId])
 
   useTrackEntityView('Resource', resource?.id)
 
@@ -114,7 +145,7 @@ export function ResourcePage() {
       setMessage(`${response.resourceName ?? resource.name}: ${t('common.confirmed')}.`)
       await refreshSlots(date)
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Booking failed.')
+      setError(submitError instanceof Error ? submitError.message : copy.bookingFailed)
     } finally {
       setBooking(false)
     }
@@ -142,7 +173,7 @@ export function ResourcePage() {
   if (!resource) {
     return (
       <div className="empty-state">
-        <h2>Resource not found</h2>
+        <h2>{copy.notFound}</h2>
         <div className="card-actions">
           <Link to="/" className="solid-button">
             {t('home.explore')}
@@ -218,14 +249,14 @@ export function ResourcePage() {
                 ) : null}
                 {resource.location ? (
                   <div className="meta-line">
-                    <span className="inline-pill">Spot</span>
+                    <span className="inline-pill">{copy.place}</span>
                     <span>{resource.location}</span>
                   </div>
                 ) : null}
                 {resource.priceFrom ? (
                   <div className="meta-line">
-                    <span className="inline-pill">from</span>
-                    <span>${resource.priceFrom}</span>
+                    <span className="inline-pill">{copy.from}</span>
+                    <span>{formatMoney(resource.priceFrom, 'USD', locale)}</span>
                   </div>
                 ) : null}
               </div>
@@ -255,7 +286,7 @@ export function ResourcePage() {
           </header>
 
           <div className="field-group">
-            <label htmlFor="resource-date">Date</label>
+            <label htmlFor="resource-date">{copy.date}</label>
             <input
               id="resource-date"
               className="input-field"

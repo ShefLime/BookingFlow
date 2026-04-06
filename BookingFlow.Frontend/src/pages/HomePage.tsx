@@ -9,14 +9,48 @@ import {
   formatDateTime,
   formatOrganizationType,
   formatResourceType,
+  formatMoney,
   pickLocalizedList,
   pickLocalizedText,
 } from '../lib/format'
 import type { EventSession, Organization, ProviderProfile, Resource } from '../types/api'
 
+function getHomeCopy(locale: 'ru' | 'en' | 'vi') {
+  return {
+    ru: {
+      providerSpotlight: 'Независимые эксперты',
+      providerTitle: 'Частные специалисты',
+      providerAction: 'Открыть профиль',
+      servicesKicker: 'Авторские форматы',
+      servicesTitle: 'Одобренные частные услуги',
+      eventAction: 'Открыть событие',
+      resourcesMetric: 'ресурсов',
+    },
+    en: {
+      providerSpotlight: 'Independent talent',
+      providerTitle: 'Featured providers',
+      providerAction: 'Open profile',
+      servicesKicker: 'Curated formats',
+      servicesTitle: 'Approved independent services',
+      eventAction: 'Open event',
+      resourcesMetric: 'services',
+    },
+    vi: {
+      providerSpotlight: 'Chuyen gia doc lap',
+      providerTitle: 'Nha cung cap noi bat',
+      providerAction: 'Mo ho so',
+      servicesKicker: 'Dich vu chon loc',
+      servicesTitle: 'Dich vu doc lap da duoc duyet',
+      eventAction: 'Mo su kien',
+      resourcesMetric: 'dich vu',
+    },
+  }[locale]
+}
+
 export function HomePage() {
   const { isAuthenticated, hasRole, user } = useAuth()
   const { locale, t } = useLocale()
+  const copy = getHomeCopy(locale)
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [featuredCoaches, setFeaturedCoaches] = useState<Resource[]>([])
   const [providerProfiles, setProviderProfiles] = useState<ProviderProfile[]>([])
@@ -211,7 +245,9 @@ export function HomePage() {
                 <div className="showcase-body">
                   <div className="pill-row">
                     <span className="type-pill">{formatOrganizationType(organization.type, locale)}</span>
-                    <span className="metric-pill">{organization.resourcesCount}</span>
+                    <span className="metric-pill">
+                      {organization.resourcesCount} {copy.resourcesMetric}
+                    </span>
                   </div>
                   <h3>{organization.name}</h3>
                   <p>
@@ -283,8 +319,8 @@ export function HomePage() {
 
       <section className="surface-card section-stack">
         <header>
-          <span className="section-kicker">Provider Spotlight</span>
-          <h2 className="section-title">Independent experiences</h2>
+          <span className="section-kicker">{copy.providerSpotlight}</span>
+          <h2 className="section-title">{copy.providerTitle}</h2>
         </header>
         <div className="three-column-grid">
           {providerProfiles.map((provider) => (
@@ -295,7 +331,9 @@ export function HomePage() {
               <div className="section-stack">
                 <div className="pill-row">
                   <span className="type-pill">{provider.city ?? provider.timeZone}</span>
-                  <span className="metric-pill">{provider.servicesCount}</span>
+                  <span className="metric-pill">
+                    {provider.servicesCount} {t('common.services').toLowerCase()}
+                  </span>
                 </div>
                 <h3>{provider.displayName}</h3>
                 <p>{pickLocalizedText(provider.content.summary, locale, provider.headline)}</p>
@@ -310,7 +348,7 @@ export function HomePage() {
                 </div>
                 <div className="card-actions">
                   <Link to={`/providers/${provider.id}`} className="ghost-button">
-                    View profile
+                    {copy.providerAction}
                   </Link>
                 </div>
               </div>
@@ -321,8 +359,8 @@ export function HomePage() {
 
       <section className="surface-card section-stack">
         <header>
-          <span className="section-kicker">Curated services</span>
-          <h2 className="section-title">Approved independent sessions</h2>
+          <span className="section-kicker">{copy.servicesKicker}</span>
+          <h2 className="section-title">{copy.servicesTitle}</h2>
         </header>
         <div className="two-column-grid">
           {providerServices.map((service) => (
@@ -334,6 +372,9 @@ export function HomePage() {
                 <div className="pill-row">
                   <span className="type-pill">{service.providerDisplayName}</span>
                   <span className="metric-pill">{formatResourceType(service.type, locale)}</span>
+                  {service.priceFrom ? (
+                    <span className="metric-pill">{formatMoney(service.priceFrom, 'USD', locale)}</span>
+                  ) : null}
                 </div>
                 <h3>{service.name}</h3>
                 <p>{pickLocalizedText(service.content.summary, locale, service.description ?? '')}</p>
@@ -388,7 +429,7 @@ export function HomePage() {
                 <div className="meta-line">{formatDateTime(eventSession.startAtUtc, locale)}</div>
                 <div className="card-actions">
                   <Link to={`/events/${eventSession.id}`} className="ghost-button">
-                    View event
+                    {copy.eventAction}
                   </Link>
                 </div>
               </div>

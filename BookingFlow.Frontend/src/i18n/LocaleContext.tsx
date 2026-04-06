@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type PropsWithChildren } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react'
 import { getMessage } from './messages'
 import type { Locale } from '../types/api'
 
@@ -7,15 +7,28 @@ const STORAGE_KEY = 'bookingflow.locale'
 interface LocaleContextValue {
   locale: Locale
   setLocale: (locale: Locale) => void
-  t: (key: Parameters<typeof getMessage>[1]) => string
+  t: (key: string) => string
 }
 
 const LocaleContext = createContext<LocaleContextValue | null>(null)
 
 function loadLocale(): Locale {
+  if (typeof window === 'undefined') {
+    return 'ru'
+  }
+
   const rawValue = window.localStorage.getItem(STORAGE_KEY)
   if (rawValue === 'ru' || rawValue === 'en' || rawValue === 'vi') {
     return rawValue
+  }
+
+  const browserLocale = window.navigator.language.toLowerCase()
+  if (browserLocale.startsWith('vi')) {
+    return 'vi'
+  }
+
+  if (browserLocale.startsWith('en')) {
+    return 'en'
   }
 
   return 'ru'
@@ -29,13 +42,20 @@ export function LocaleProvider({ children }: PropsWithChildren) {
     setLocaleState(localeValue)
   }
 
-  const value: LocaleContextValue = {
-    locale,
-    setLocale,
-    t(key) {
-      return getMessage(locale, key)
-    },
-  }
+  useEffect(() => {
+    document.documentElement.lang = locale
+  }, [locale])
+
+  const value = useMemo<LocaleContextValue>(
+    () => ({
+      locale,
+      setLocale,
+      t(key) {
+        return getMessage(locale, key)
+      },
+    }),
+    [locale],
+  )
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>
 }

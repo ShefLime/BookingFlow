@@ -265,6 +265,194 @@ function LocalizedListEditor({
 export function ProviderStudioPage() {
   const { session, refreshProfile, user } = useAuth()
   const { locale } = useLocale()
+  const copy = {
+    ru: {
+      loading: 'Загружаю кабинет исполнителя...',
+      loadFailed: 'Не удалось загрузить кабинет исполнителя.',
+      uploadSuccess: 'Файл загружен. URL можно вставить в поля профиля или услуги.',
+      uploadFailed: 'Не удалось загрузить медиа.',
+      profileSaved: 'Профиль исполнителя сохранён и отправлен на модерацию.',
+      profileSaveFailed: 'Не удалось сохранить профиль исполнителя.',
+      serviceSaved: 'Услуга сохранена и отправлена на модерацию.',
+      serviceSaveFailed: 'Не удалось создать услугу.',
+      ruleAdded: 'Правило доступности добавлено.',
+      ruleFailed: 'Не удалось создать правило доступности.',
+      title: 'Кабинет исполнителя',
+      subtitle: 'Независимые исполнители могут публиковать услуги без организации. Профиль и услуги станут видны после одобрения администратором.',
+      noProfile: 'Пока нет профиля исполнителя. Создайте его, чтобы начать публиковать свои услуги.',
+      profile: 'Профиль',
+      publicPage: 'Публичная страница исполнителя',
+      displayName: 'Отображаемое имя',
+      headline: 'Позиционирование',
+      city: 'Город',
+      timeZone: 'Часовой пояс',
+      location: 'Локация',
+      avatarUrl: 'URL аватара',
+      coverUrl: 'URL обложки',
+      summary: 'Краткое описание',
+      biography: 'Биография',
+      specialties: 'Специализация',
+      highlights: 'Сильные стороны',
+      saveProfile: 'Сохранить профиль',
+      media: 'Медиа',
+      uploadTitle: 'Загрузка в S3 / MinIO',
+      uploadLabel: 'Загрузить изображение или документ',
+      openMedia: 'Открыть файл',
+      uploadHint: 'Загрузите файл и вставьте полученный URL в поля аватара, обложки или галереи.',
+      services: 'Услуги',
+      createService: 'Создать услугу для записи',
+      serviceName: 'Название услуги',
+      type: 'Тип',
+      capacity: 'Вместимость',
+      slotMinutes: 'Размер слота, минут',
+      priceFrom: 'Цена от',
+      description: 'Описание',
+      serviceSummary: 'Краткое описание услуги',
+      formats: 'Форматы',
+      createServiceAction: 'Создать услугу',
+      myServices: 'Мои услуги',
+      moderationAndSchedule: 'Модерация и расписание',
+      noServices: 'Пока нет услуг',
+      createAfterProfile: 'Сохраните профиль исполнителя, а затем создайте первое предложение.',
+      manageSchedule: 'Управлять расписанием',
+      availability: 'Доступность',
+      chooseService: 'Выберите услугу, чтобы управлять расписанием',
+      newProvider: 'Новый исполнитель',
+      dayOfWeek: 'День недели',
+      start: 'Начало',
+      end: 'Окончание',
+      selectedService: 'Выбранная услуга',
+      addRule: 'Добавить правило доступности',
+      active: 'Активно',
+      inactive: 'Неактивно',
+      window: 'Интервал',
+      chooseFirst: 'Сначала выберите или создайте услугу',
+    },
+    en: {
+      loading: 'Loading provider studio...',
+      loadFailed: 'Failed to load provider studio.',
+      uploadSuccess: 'File uploaded. You can paste the URL into the profile or service form.',
+      uploadFailed: 'Failed to upload media.',
+      profileSaved: 'Provider profile saved and sent for moderation.',
+      profileSaveFailed: 'Failed to save provider profile.',
+      serviceSaved: 'Service saved and sent for moderation.',
+      serviceSaveFailed: 'Failed to create service.',
+      ruleAdded: 'Availability rule added.',
+      ruleFailed: 'Failed to create availability rule.',
+      title: 'Provider Studio',
+      subtitle: 'Independent providers can publish services without an organization. Profiles and services stay hidden until an administrator approves them.',
+      noProfile: 'No provider profile yet. Create one to start offering your own services.',
+      profile: 'Profile',
+      publicPage: 'Public provider page',
+      displayName: 'Display name',
+      headline: 'Headline',
+      city: 'City',
+      timeZone: 'Time zone',
+      location: 'Location',
+      avatarUrl: 'Avatar URL',
+      coverUrl: 'Cover URL',
+      summary: 'Summary',
+      biography: 'Biography',
+      specialties: 'Specialties',
+      highlights: 'Highlights',
+      saveProfile: 'Save provider profile',
+      media: 'Media',
+      uploadTitle: 'Upload to S3 / MinIO',
+      uploadLabel: 'Upload image or document',
+      openMedia: 'Open media',
+      uploadHint: 'Upload a file here, then paste the generated URL into the avatar, cover or gallery fields.',
+      services: 'Services',
+      createService: 'Create a bookable service',
+      serviceName: 'Service name',
+      type: 'Type',
+      capacity: 'Capacity',
+      slotMinutes: 'Slot size, minutes',
+      priceFrom: 'Price from',
+      description: 'Description',
+      serviceSummary: 'Service summary',
+      formats: 'Formats',
+      createServiceAction: 'Create service',
+      myServices: 'My services',
+      moderationAndSchedule: 'Moderation and schedule',
+      noServices: 'No services yet',
+      createAfterProfile: 'Create your first offer after saving the provider profile.',
+      manageSchedule: 'Manage schedule',
+      availability: 'Availability',
+      chooseService: 'Choose a service to manage the schedule',
+      newProvider: 'New provider',
+      dayOfWeek: 'Day of week',
+      start: 'Start',
+      end: 'End',
+      selectedService: 'Selected service',
+      addRule: 'Add availability rule',
+      active: 'Active',
+      inactive: 'Inactive',
+      window: 'Window',
+      chooseFirst: 'Choose or create a service first',
+    },
+    vi: {
+      loading: 'Dang tai khu nha cung cap...',
+      loadFailed: 'Khong the tai khu nha cung cap.',
+      uploadSuccess: 'Da tai file. Ban co the dan URL vao truong ho so hoac dich vu.',
+      uploadFailed: 'Khong the tai media.',
+      profileSaved: 'Da luu ho so nha cung cap va gui di kiem duyet.',
+      profileSaveFailed: 'Khong the luu ho so nha cung cap.',
+      serviceSaved: 'Da luu dich vu va gui di kiem duyet.',
+      serviceSaveFailed: 'Khong the tao dich vu.',
+      ruleAdded: 'Da them quy tac kha dung.',
+      ruleFailed: 'Khong the tao quy tac kha dung.',
+      title: 'Khu nha cung cap',
+      subtitle: 'Nha cung cap doc lap co the dang dich vu ma khong can to chuc. Ho so va dich vu se hien thi sau khi duoc quan tri vien duyet.',
+      noProfile: 'Chua co ho so nha cung cap. Hay tao ho so de bat dau dang dich vu.',
+      profile: 'Ho so',
+      publicPage: 'Trang cong khai cua nha cung cap',
+      displayName: 'Ten hien thi',
+      headline: 'Dinh vi',
+      city: 'Thanh pho',
+      timeZone: 'Mui gio',
+      location: 'Dia diem',
+      avatarUrl: 'URL avatar',
+      coverUrl: 'URL anh bia',
+      summary: 'Tom tat',
+      biography: 'Tieu su',
+      specialties: 'Chuyen mon',
+      highlights: 'Diem nhan',
+      saveProfile: 'Luu ho so',
+      media: 'Media',
+      uploadTitle: 'Tai len S3 / MinIO',
+      uploadLabel: 'Tai anh hoac tai lieu',
+      openMedia: 'Mo file',
+      uploadHint: 'Tai file tai day roi dan URL vao cac truong avatar, anh bia hoac gallery.',
+      services: 'Dich vu',
+      createService: 'Tao dich vu dat lich',
+      serviceName: 'Ten dich vu',
+      type: 'Loai',
+      capacity: 'Suc chua',
+      slotMinutes: 'Do dai khung gio, phut',
+      priceFrom: 'Gia tu',
+      description: 'Mo ta',
+      serviceSummary: 'Tom tat dich vu',
+      formats: 'Hinh thuc',
+      createServiceAction: 'Tao dich vu',
+      myServices: 'Dich vu cua toi',
+      moderationAndSchedule: 'Kiem duyet va lich',
+      noServices: 'Chua co dich vu',
+      createAfterProfile: 'Hay luu ho so nha cung cap truoc khi tao dich vu dau tien.',
+      manageSchedule: 'Quan ly lich',
+      availability: 'Do kha dung',
+      chooseService: 'Chon dich vu de quan ly lich',
+      newProvider: 'Nha cung cap moi',
+      dayOfWeek: 'Thu trong tuan',
+      start: 'Bat dau',
+      end: 'Ket thuc',
+      selectedService: 'Dich vu da chon',
+      addRule: 'Them quy tac kha dung',
+      active: 'Dang hoat dong',
+      inactive: 'Khong hoat dong',
+      window: 'Khoang gio',
+      chooseFirst: 'Hay chon hoac tao dich vu truoc',
+    },
+  }[locale]
   const token = session?.accessToken
   const [profile, setProfile] = useState<ProviderProfile | null>(null)
   const [organizations, setOrganizations] = useState<Organization[]>([])
@@ -325,7 +513,7 @@ export function ProviderStudioPage() {
         setError(null)
       } catch (loadError) {
         if (isMounted) {
-          setError(loadError instanceof Error ? loadError.message : 'Failed to load provider studio.')
+          setError(loadError instanceof Error ? loadError.message : copy.loadFailed)
         }
       } finally {
         if (isMounted) {
@@ -339,7 +527,7 @@ export function ProviderStudioPage() {
     return () => {
       isMounted = false
     }
-  }, [token])
+  }, [copy.loadFailed, token])
 
   useEffect(() => {
     let isMounted = true
@@ -386,10 +574,10 @@ export function ProviderStudioPage() {
     try {
       const response = await api.uploadMedia(file, 'providers', accessToken)
       setUploadedMedia(response)
-      setMessage('File uploaded. You can paste the URL into the profile or service form.')
+      setMessage(copy.uploadSuccess)
       setError(null)
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : 'Failed to upload media.')
+      setError(uploadError instanceof Error ? uploadError.message : copy.uploadFailed)
     }
   }
 
@@ -403,11 +591,11 @@ export function ProviderStudioPage() {
         accessToken,
       )
       setProfile(nextProfile)
-      setMessage('Provider profile saved and sent for moderation.')
+      setMessage(copy.profileSaved)
       setError(null)
       await refreshProfile()
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : 'Failed to save provider profile.')
+      setError(saveError instanceof Error ? saveError.message : copy.profileSaveFailed)
     } finally {
       setSaving(false)
     }
@@ -427,10 +615,10 @@ export function ProviderStudioPage() {
       setSelectedServiceId(nextService.id)
       setRuleForm(buildRuleForm(nextService.id))
       setServiceForm(buildServiceForm())
-      setMessage('Service saved and sent for moderation.')
+      setMessage(copy.serviceSaved)
       setError(null)
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : 'Failed to create service.')
+      setError(saveError instanceof Error ? saveError.message : copy.serviceSaveFailed)
     } finally {
       setSaving(false)
     }
@@ -452,33 +640,33 @@ export function ProviderStudioPage() {
         accessToken,
       )
       setRules((current) => [...current, nextRule])
-      setMessage('Availability rule added.')
+      setMessage(copy.ruleAdded)
       setError(null)
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : 'Failed to create availability rule.')
+      setError(saveError instanceof Error ? saveError.message : copy.ruleFailed)
     } finally {
       setSaving(false)
     }
   }
 
   if (loading) {
-    return <LoadingBlock label="Loading provider studio..." />
+    return <LoadingBlock label={copy.loading} />
   }
 
   if (!token) {
-    return <LoadingBlock label="Loading provider studio..." />
+    return <LoadingBlock label={copy.loading} />
   }
 
   return (
     <div className="page-stack">
       <section className="surface-card section-stack">
         <header>
-          <span className="section-kicker">Provider Studio</span>
+          <span className="section-kicker">{copy.title}</span>
           <h1 className="section-title">
-            {profile?.displayName ?? `${user?.firstName ?? 'New'} ${user?.lastName ?? 'provider'}`}
+            {profile?.displayName ?? `${user?.firstName ?? ''} ${user?.lastName ?? copy.newProvider}`.trim()}
           </h1>
           <p className="section-subtitle">
-            Independent providers can publish services without an organization. Profiles and services stay hidden until an administrator approves them.
+            {copy.subtitle}
           </p>
         </header>
 
@@ -489,7 +677,7 @@ export function ProviderStudioPage() {
           </div>
         ) : (
           <div className="info-banner">
-            No provider profile yet. Create one to start offering your own services.
+            {copy.noProfile}
           </div>
         )}
 
@@ -506,14 +694,14 @@ export function ProviderStudioPage() {
       <div className="admin-grid">
         <section className="surface-card section-stack">
           <header>
-            <span className="section-kicker">Profile</span>
-            <h2 className="section-title">Public provider page</h2>
+            <span className="section-kicker">{copy.profile}</span>
+            <h2 className="section-title">{copy.publicPage}</h2>
           </header>
 
           <form className="form-stack" onSubmit={handleSaveProfile}>
             <div className="form-grid">
               <div className="field-group">
-                <label htmlFor="provider-display-name">Display name</label>
+                <label htmlFor="provider-display-name">{copy.displayName}</label>
                 <input
                   id="provider-display-name"
                   className="input-field"
@@ -526,7 +714,7 @@ export function ProviderStudioPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="provider-headline">Headline</label>
+                <label htmlFor="provider-headline">{copy.headline}</label>
                 <input
                   id="provider-headline"
                   className="input-field"
@@ -539,7 +727,7 @@ export function ProviderStudioPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="provider-city">City</label>
+                <label htmlFor="provider-city">{copy.city}</label>
                 <input
                   id="provider-city"
                   className="input-field"
@@ -551,7 +739,7 @@ export function ProviderStudioPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="provider-time-zone">Time zone</label>
+                <label htmlFor="provider-time-zone">{copy.timeZone}</label>
                 <input
                   id="provider-time-zone"
                   className="input-field"
@@ -564,7 +752,7 @@ export function ProviderStudioPage() {
               </div>
 
               <div className="field-group wide-span">
-                <label htmlFor="provider-location">Location</label>
+                <label htmlFor="provider-location">{copy.location}</label>
                 <input
                   id="provider-location"
                   className="input-field"
@@ -576,7 +764,7 @@ export function ProviderStudioPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="provider-avatar">Avatar URL</label>
+                <label htmlFor="provider-avatar">{copy.avatarUrl}</label>
                 <input
                   id="provider-avatar"
                   className="input-field"
@@ -588,7 +776,7 @@ export function ProviderStudioPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="provider-cover">Cover URL</label>
+                <label htmlFor="provider-cover">{copy.coverUrl}</label>
                 <input
                   id="provider-cover"
                   className="input-field"
@@ -601,7 +789,7 @@ export function ProviderStudioPage() {
             </div>
 
             <LocalizedTextEditor
-              label="Summary"
+              label={copy.summary}
               value={profileForm.content.summary}
               onChange={(value) =>
                 setProfileForm((current) => ({
@@ -612,7 +800,7 @@ export function ProviderStudioPage() {
             />
 
             <LocalizedTextEditor
-              label="Biography"
+              label={copy.biography}
               rows={4}
               value={profileForm.content.biography}
               onChange={(value) =>
@@ -624,7 +812,7 @@ export function ProviderStudioPage() {
             />
 
             <LocalizedListEditor
-              label="Specialties"
+              label={copy.specialties}
               value={profileForm.content.specialties}
               onChange={(value) =>
                 setProfileForm((current) => ({
@@ -635,7 +823,7 @@ export function ProviderStudioPage() {
             />
 
             <LocalizedListEditor
-              label="Highlights"
+              label={copy.highlights}
               value={profileForm.content.highlights}
               onChange={(value) =>
                 setProfileForm((current) => ({
@@ -647,7 +835,7 @@ export function ProviderStudioPage() {
 
             <div className="card-actions">
               <button className="solid-button" type="submit" disabled={saving}>
-                Save provider profile
+                {copy.saveProfile}
               </button>
             </div>
           </form>
@@ -655,12 +843,12 @@ export function ProviderStudioPage() {
 
         <section className="surface-card section-stack">
           <header>
-            <span className="section-kicker">Media</span>
-            <h2 className="section-title">Upload to S3 / MinIO</h2>
+            <span className="section-kicker">{copy.media}</span>
+            <h2 className="section-title">{copy.uploadTitle}</h2>
           </header>
 
           <div className="field-group">
-            <label htmlFor="provider-upload">Upload image or document</label>
+            <label htmlFor="provider-upload">{copy.uploadLabel}</label>
             <input
               id="provider-upload"
               className="input-field"
@@ -683,13 +871,13 @@ export function ProviderStudioPage() {
               </div>
               <p className="muted-code">{uploadedMedia.url}</p>
               <a href={uploadedMedia.url} target="_blank" rel="noreferrer" className="primary-link-button">
-                Open media
+                {copy.openMedia}
               </a>
             </article>
           ) : null}
 
           <div className="info-banner">
-            Upload a file here, then paste the generated URL into the avatar, cover or gallery fields.
+            {copy.uploadHint}
           </div>
         </section>
       </div>
@@ -697,14 +885,14 @@ export function ProviderStudioPage() {
       <div className="admin-grid">
         <section className="surface-card section-stack">
           <header>
-            <span className="section-kicker">Services</span>
-            <h2 className="section-title">Create a bookable service</h2>
+            <span className="section-kicker">{copy.services}</span>
+            <h2 className="section-title">{copy.createService}</h2>
           </header>
 
           <form className="form-stack" onSubmit={handleCreateService}>
             <div className="form-grid">
               <div className="field-group">
-                <label htmlFor="service-name">Service name</label>
+                <label htmlFor="service-name">{copy.serviceName}</label>
                 <input
                   id="service-name"
                   className="input-field"
@@ -717,7 +905,7 @@ export function ProviderStudioPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="service-type">Type</label>
+                <label htmlFor="service-type">{copy.type}</label>
                 <select
                   id="service-type"
                   className="select-field"
@@ -731,14 +919,14 @@ export function ProviderStudioPage() {
                 >
                   {resourceTypes.map((resourceType) => (
                     <option key={resourceType} value={resourceType}>
-                      {resourceType}
+                      {formatResourceType(resourceType, locale)}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div className="field-group">
-                <label htmlFor="service-location">Location</label>
+                <label htmlFor="service-location">{copy.location}</label>
                 <input
                   id="service-location"
                   className="input-field"
@@ -750,7 +938,7 @@ export function ProviderStudioPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="service-capacity">Capacity</label>
+                <label htmlFor="service-capacity">{copy.capacity}</label>
                 <input
                   id="service-capacity"
                   className="input-field"
@@ -767,7 +955,7 @@ export function ProviderStudioPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="service-slot">Slot size, minutes</label>
+                <label htmlFor="service-slot">{copy.slotMinutes}</label>
                 <input
                   id="service-slot"
                   className="input-field"
@@ -785,7 +973,7 @@ export function ProviderStudioPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="service-price">Price from</label>
+                <label htmlFor="service-price">{copy.priceFrom}</label>
                 <input
                   id="service-price"
                   className="input-field"
@@ -802,7 +990,7 @@ export function ProviderStudioPage() {
               </div>
 
               <div className="field-group wide-span">
-                <label htmlFor="service-description">Description</label>
+                <label htmlFor="service-description">{copy.description}</label>
                 <textarea
                   id="service-description"
                   className="textarea-field"
@@ -816,7 +1004,7 @@ export function ProviderStudioPage() {
             </div>
 
             <LocalizedTextEditor
-              label="Service summary"
+              label={copy.serviceSummary}
               value={serviceForm.content.summary}
               onChange={(value) =>
                 setServiceForm((current) => ({
@@ -827,7 +1015,7 @@ export function ProviderStudioPage() {
             />
 
             <LocalizedListEditor
-              label="Formats"
+              label={copy.formats}
               value={serviceForm.content.formats}
               onChange={(value) =>
                 setServiceForm((current) => ({
@@ -838,7 +1026,7 @@ export function ProviderStudioPage() {
             />
 
             <LocalizedListEditor
-              label="Specialties"
+              label={copy.specialties}
               value={serviceForm.content.specialties}
               onChange={(value) =>
                 setServiceForm((current) => ({
@@ -850,7 +1038,7 @@ export function ProviderStudioPage() {
 
             <div className="card-actions">
               <button className="solid-button" type="submit" disabled={saving || !profile}>
-                Create service
+                {copy.createServiceAction}
               </button>
             </div>
           </form>
@@ -858,14 +1046,14 @@ export function ProviderStudioPage() {
 
         <section className="surface-card section-stack">
           <header>
-            <span className="section-kicker">My services</span>
-            <h2 className="section-title">Moderation and schedule</h2>
+            <span className="section-kicker">{copy.myServices}</span>
+            <h2 className="section-title">{copy.moderationAndSchedule}</h2>
           </header>
 
           {services.length === 0 ? (
             <div className="empty-state">
-              <h3>No services yet</h3>
-              <p>Create your first offer after saving the provider profile.</p>
+              <h3>{copy.noServices}</h3>
+              <p>{copy.createAfterProfile}</p>
             </div>
           ) : (
             <div className="table-like">
@@ -897,7 +1085,7 @@ export function ProviderStudioPage() {
                         setRuleForm(buildRuleForm(service.id))
                       }}
                     >
-                      Manage schedule
+                      {copy.manageSchedule}
                     </button>
                   </header>
                   <p>{pickLocalizedText(service.content.summary, locale, service.description ?? '')}</p>
@@ -913,15 +1101,15 @@ export function ProviderStudioPage() {
 
       <section className="surface-card section-stack">
         <header>
-          <span className="section-kicker">Availability</span>
-          <h2 className="section-title">{selectedService?.name ?? 'Choose a service to manage the schedule'}</h2>
+          <span className="section-kicker">{copy.availability}</span>
+          <h2 className="section-title">{selectedService?.name ?? copy.chooseService}</h2>
         </header>
 
         {selectedService ? (
           <>
             <form className="form-grid" onSubmit={handleCreateRule}>
               <div className="field-group">
-                <label htmlFor="rule-day">Day of week</label>
+                <label htmlFor="rule-day">{copy.dayOfWeek}</label>
                 <select
                   id="rule-day"
                   className="select-field"
@@ -942,7 +1130,7 @@ export function ProviderStudioPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="rule-start">Start</label>
+                <label htmlFor="rule-start">{copy.start}</label>
                 <input
                   id="rule-start"
                   className="input-field"
@@ -959,7 +1147,7 @@ export function ProviderStudioPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="rule-end">End</label>
+                <label htmlFor="rule-end">{copy.end}</label>
                 <input
                   id="rule-end"
                   className="input-field"
@@ -976,7 +1164,7 @@ export function ProviderStudioPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="rule-resource">Selected service</label>
+                <label htmlFor="rule-resource">{copy.selectedService}</label>
                 <select
                   id="rule-resource"
                   className="select-field"
@@ -996,7 +1184,7 @@ export function ProviderStudioPage() {
 
               <div className="wide-span card-actions">
                 <button className="solid-button" type="submit" disabled={saving}>
-                  Add availability rule
+                  {copy.addRule}
                 </button>
               </div>
             </form>
@@ -1007,11 +1195,11 @@ export function ProviderStudioPage() {
                   <header>
                     <strong>{formatDayOfWeek(rule.dayOfWeek, locale)}</strong>
                     <span className={rule.isActive ? 'status-pill success' : 'status-pill warning'}>
-                      {rule.isActive ? 'Active' : 'Inactive'}
+                      {rule.isActive ? copy.active : copy.inactive}
                     </span>
                   </header>
                   <div className="meta-line">
-                    <span className="inline-pill">Window</span>
+                    <span className="inline-pill">{copy.window}</span>
                     <span>
                       {rule.startTime.slice(0, 5)} - {rule.endTime.slice(0, 5)}
                     </span>
@@ -1022,7 +1210,7 @@ export function ProviderStudioPage() {
           </>
         ) : (
           <div className="empty-state">
-            <h3>Choose or create a service first</h3>
+            <h3>{copy.chooseFirst}</h3>
           </div>
         )}
       </section>

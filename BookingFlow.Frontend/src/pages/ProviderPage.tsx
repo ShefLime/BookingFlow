@@ -13,15 +13,69 @@ import type { ProviderProfile, Resource } from '../types/api'
 
 export function ProviderPage() {
   const { providerId } = useParams()
-  const { locale } = useLocale()
+  const { locale, t } = useLocale()
   const [provider, setProvider] = useState<ProviderProfile | null>(null)
   const [services, setServices] = useState<Resource[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const copy = {
+    ru: {
+      notFound: 'Исполнитель не найден',
+      loading: 'Загружаю профиль исполнителя...',
+      loadFailed: 'Не удалось загрузить профиль исполнителя.',
+      servicesCount: 'услуг',
+      exploreServices: 'Смотреть услуги',
+      headline: 'Позиционирование',
+      location: 'Локация',
+      about: 'О специалисте',
+      specialties: 'Специализация',
+      reasons: 'Почему к нему записываются',
+      services: 'Услуги',
+      approved: 'Одобренные форматы',
+      emptyServices: 'Пока нет одобренных услуг',
+      gallery: 'Галерея',
+      openProfile: 'Открыть услугу',
+    },
+    en: {
+      notFound: 'Provider not found',
+      loading: 'Loading provider profile...',
+      loadFailed: 'Failed to load provider.',
+      servicesCount: 'services',
+      exploreServices: 'Explore services',
+      headline: 'Headline',
+      location: 'Location',
+      about: 'About the provider',
+      specialties: 'Specialties',
+      reasons: 'Why clients book this provider',
+      services: 'Services',
+      approved: 'Approved sessions',
+      emptyServices: 'No approved services yet',
+      gallery: 'Gallery',
+      openProfile: 'Open service',
+    },
+    vi: {
+      notFound: 'Khong tim thay nha cung cap',
+      loading: 'Dang tai ho so nha cung cap...',
+      loadFailed: 'Khong the tai ho so nha cung cap.',
+      servicesCount: 'dich vu',
+      exploreServices: 'Xem dich vu',
+      headline: 'Dinh vi',
+      location: 'Dia diem',
+      about: 'Ve nha cung cap',
+      specialties: 'Chuyen mon',
+      reasons: 'Ly do khach dat lich',
+      services: 'Dich vu',
+      approved: 'Buoi dat da duoc duyet',
+      emptyServices: 'Chua co dich vu duoc duyet',
+      gallery: 'Thu vien',
+      openProfile: 'Mo dich vu',
+    },
+  }[locale]
+
   useEffect(() => {
     if (!providerId) {
-      setError('Provider not found.')
+      setError(copy.notFound)
       setLoading(false)
       return
     }
@@ -48,7 +102,7 @@ export function ProviderPage() {
         setError(null)
       } catch (loadError) {
         if (isMounted) {
-          setError(loadError instanceof Error ? loadError.message : 'Failed to load provider.')
+          setError(loadError instanceof Error ? loadError.message : copy.loadFailed)
         }
       } finally {
         if (isMounted) {
@@ -62,18 +116,18 @@ export function ProviderPage() {
     return () => {
       isMounted = false
     }
-  }, [providerId])
+  }, [copy.loadFailed, copy.notFound, providerId])
 
   const gallery = useMemo(() => provider?.gallery ?? [], [provider?.gallery])
 
   if (loading) {
-    return <LoadingBlock label="Loading provider profile..." />
+    return <LoadingBlock label={copy.loading} />
   }
 
   if (!provider) {
     return (
       <div className="empty-state">
-        <h2>Provider not found</h2>
+        <h2>{copy.notFound}</h2>
         {error ? <p>{error}</p> : null}
       </div>
     )
@@ -93,13 +147,13 @@ export function ProviderPage() {
           <div className="section-stack">
             <div className="pill-row">
               <span className="type-pill">{provider.city ?? provider.timeZone}</span>
-              <span className="metric-pill">{provider.servicesCount} services</span>
+              <span className="metric-pill">{provider.servicesCount} {copy.servicesCount}</span>
             </div>
             <h1 className="display-title">{provider.displayName}</h1>
             <p className="hero-lead">{summary}</p>
             <div className="hero-actions">
               <a href="#provider-services" className="solid-button">
-                Explore services
+                {copy.exploreServices}
               </a>
             </div>
           </div>
@@ -110,12 +164,12 @@ export function ProviderPage() {
             ) : null}
             <div className="stacked-meta">
               <div className="meta-line">
-                <span className="inline-pill">Headline</span>
+                <span className="inline-pill">{copy.headline}</span>
                 <span>{provider.headline}</span>
               </div>
               {provider.location ? (
                 <div className="meta-line">
-                  <span className="inline-pill">Location</span>
+                  <span className="inline-pill">{copy.location}</span>
                   <span>{provider.location}</span>
                 </div>
               ) : null}
@@ -129,7 +183,7 @@ export function ProviderPage() {
       <section className="two-column-grid">
         <article className="surface-card section-stack">
           <header>
-            <span className="section-kicker">About</span>
+            <span className="section-kicker">{copy.about}</span>
             <h2 className="section-title">{provider.displayName}</h2>
           </header>
           <p>{biography}</p>
@@ -139,8 +193,8 @@ export function ProviderPage() {
 
         <article className="surface-card section-stack">
           <header>
-            <span className="section-kicker">Specialties</span>
-            <h2 className="section-title">Why people book this provider</h2>
+            <span className="section-kicker">{copy.specialties}</span>
+            <h2 className="section-title">{copy.reasons}</h2>
           </header>
           <div className="pill-row">
             {specialties.map((item) => (
@@ -161,13 +215,13 @@ export function ProviderPage() {
 
       <section className="surface-card section-stack" id="provider-services">
         <header>
-          <span className="section-kicker">Services</span>
-          <h2 className="section-title">Approved sessions</h2>
+          <span className="section-kicker">{copy.services}</span>
+          <h2 className="section-title">{copy.approved}</h2>
         </header>
 
         {services.length === 0 ? (
           <div className="empty-state">
-            <h3>No approved services yet</h3>
+            <h3>{copy.emptyServices}</h3>
           </div>
         ) : (
           <div className="two-column-grid">
@@ -194,7 +248,7 @@ export function ProviderPage() {
                   </div>
                   <div className="card-actions">
                     <Link to={`/resources/${service.id}`} className="solid-button">
-                      Book now
+                      {t('organization.bookNow')}
                     </Link>
                   </div>
                 </div>
@@ -207,7 +261,7 @@ export function ProviderPage() {
       {gallery.length > 0 ? (
         <section className="surface-card section-stack">
           <header>
-            <span className="section-kicker">Gallery</span>
+            <span className="section-kicker">{copy.gallery}</span>
             <h2 className="section-title">{provider.displayName}</h2>
           </header>
           <div className="gallery-grid">

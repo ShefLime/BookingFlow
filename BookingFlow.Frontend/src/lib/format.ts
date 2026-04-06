@@ -33,6 +33,14 @@ export function formatDate(value: string, locale: Locale = 'ru') {
   }).format(new Date(value))
 }
 
+export function formatMoney(value: number, currency = 'USD', locale: Locale = 'ru') {
+  return new Intl.NumberFormat(toIntlLocale(locale), {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: Number.isInteger(value) ? 0 : 2,
+  }).format(value)
+}
+
 export function toDateInputValue(date: Date) {
   return date.toISOString().slice(0, 10)
 }

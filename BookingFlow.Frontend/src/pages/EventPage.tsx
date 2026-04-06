@@ -13,6 +13,35 @@ export function EventPage() {
   const { eventId } = useParams()
   const navigate = useNavigate()
   const { locale, t } = useLocale()
+  const copy = {
+    ru: {
+      notFound: 'Событие не найдено',
+      loadFailed: 'Не удалось загрузить событие.',
+      bookingFailed: 'Не удалось создать бронь.',
+      date: 'Дата',
+      seats: 'Места',
+      agenda: 'Программа',
+      included: 'Что входит',
+    },
+    en: {
+      notFound: 'Event not found',
+      loadFailed: 'Failed to load event.',
+      bookingFailed: 'Booking failed.',
+      date: 'Date',
+      seats: 'Seats',
+      agenda: 'Agenda',
+      included: 'What is included',
+    },
+    vi: {
+      notFound: 'Khong tim thay su kien',
+      loadFailed: 'Khong the tai su kien.',
+      bookingFailed: 'Khong the tao lich dat.',
+      date: 'Ngay',
+      seats: 'Cho',
+      agenda: 'Lich trinh',
+      included: 'Bao gom gi',
+    },
+  }[locale]
   const { session, isAuthenticated } = useAuth()
   const [eventSession, setEventSession] = useState<EventSession | null>(null)
   const [organization, setOrganization] = useState<Organization | null>(null)
@@ -23,7 +52,7 @@ export function EventPage() {
 
   useEffect(() => {
     if (!eventId) {
-      setError('Event not found.')
+      setError(copy.notFound)
       setLoading(false)
       return
     }
@@ -46,7 +75,7 @@ export function EventPage() {
         setError(null)
       } catch (loadError) {
         if (isMounted) {
-          setError(loadError instanceof Error ? loadError.message : 'Failed to load event.')
+          setError(loadError instanceof Error ? loadError.message : copy.loadFailed)
         }
       } finally {
         if (isMounted) {
@@ -60,7 +89,7 @@ export function EventPage() {
     return () => {
       isMounted = false
     }
-  }, [eventId])
+  }, [copy.loadFailed, copy.notFound, eventId])
 
   useTrackEntityView('EventSession', eventSession?.id)
 
@@ -85,7 +114,7 @@ export function EventPage() {
       const nextEvent = await api.getEvent(eventSession.id)
       setEventSession(nextEvent)
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Booking failed.')
+      setError(submitError instanceof Error ? submitError.message : copy.bookingFailed)
     } finally {
       setSaving(false)
     }
@@ -98,7 +127,7 @@ export function EventPage() {
   if (!eventSession) {
     return (
       <div className="empty-state">
-        <h2>Event not found</h2>
+        <h2>{copy.notFound}</h2>
         {error ? <p>{error}</p> : null}
         <div className="card-actions">
           <Link to="/" className="solid-button">
@@ -148,7 +177,7 @@ export function EventPage() {
 
           <aside className="glass-panel section-stack">
             <div className="meta-line">
-              <span className="inline-pill">Date</span>
+              <span className="inline-pill">{copy.date}</span>
               <span>{formatDateTime(eventSession.startAtUtc, locale)}</span>
             </div>
             <div className="meta-line">
@@ -156,7 +185,7 @@ export function EventPage() {
               <span>{eventSession.location}</span>
             </div>
             <div className="meta-line">
-              <span className="inline-pill">Seats</span>
+              <span className="inline-pill">{copy.seats}</span>
               <span>{eventSession.remainingCapacity}</span>
             </div>
           </aside>
@@ -178,8 +207,8 @@ export function EventPage() {
 
         <article className="surface-card section-stack">
           <header>
-            <span className="section-kicker">Agenda</span>
-            <h2 className="section-title">What is included</h2>
+            <span className="section-kicker">{copy.agenda}</span>
+            <h2 className="section-title">{copy.included}</h2>
           </header>
           <div className="bullet-stack">
             {agenda.map((item) => (

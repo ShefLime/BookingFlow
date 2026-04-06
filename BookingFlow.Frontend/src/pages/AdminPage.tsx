@@ -314,6 +314,155 @@ function LocalizedListEditor({
 export function AdminPage() {
   const { session, user } = useAuth()
   const { locale, t } = useLocale()
+  const copy = {
+    ru: {
+      loading: 'Загружаю админ-панель...',
+      mediaTitle: 'Центральная загрузка медиа',
+      uploadLabel: 'Загрузить изображение или документ',
+      scope: 'Область управления',
+      managedOrganizations: 'Организации в управлении',
+      currentOrganization: 'Текущая организация',
+      create: 'Создание',
+      newOrganization: 'Новая организация',
+      organizationResource: 'Ресурс организации',
+      eventSession: 'Событие',
+      liveData: 'Актуальные данные',
+      currentContent: 'Текущее содержимое организации',
+      users: 'Пользователи',
+      platformAccounts: 'Аккаунты платформы',
+      memberships: 'Привязки',
+      assignManager: 'Назначить менеджера в организацию',
+      moderation: 'Модерация',
+      providerProfiles: 'Профили исполнителей',
+      providerServices: 'Услуги исполнителей',
+      name: 'Название',
+      type: 'Тип',
+      address: 'Адрес',
+      city: 'Город',
+      description: 'Описание',
+      capacity: 'Вместимость',
+      slotMinutes: 'Размер слота, минут',
+      location: 'Локация',
+      start: 'Начало',
+      end: 'Окончание',
+      userLabel: 'Пользователь',
+      organizationLabel: 'Организация',
+      title: 'Роль',
+      moderationNote: 'Комментарий модерации',
+      summary: 'Краткое описание организации',
+      amenities: 'Удобства',
+      resourceSummary: 'Краткое описание ресурса',
+      formats: 'Форматы',
+      eventSummary: 'Краткое описание события',
+      createOrganizationAction: 'Создать организацию',
+      createResourceAction: 'Создать ресурс',
+      createEventAction: 'Создать событие',
+      assignAction: 'Назначить привязку',
+      approve: 'Одобрить',
+      reject: 'Отклонить',
+      selectUser: 'Выберите пользователя',
+      selectOrganization: 'Выберите организацию',
+      minuteShort: 'мин',
+    },
+    en: {
+      loading: 'Loading admin studio...',
+      mediaTitle: 'Central media upload',
+      uploadLabel: 'Upload image or document',
+      scope: 'Scope',
+      managedOrganizations: 'Managed organizations',
+      currentOrganization: 'Current organization',
+      create: 'Create',
+      newOrganization: 'New organization',
+      organizationResource: 'Organization resource',
+      eventSession: 'Event session',
+      liveData: 'Live data',
+      currentContent: 'Current organization content',
+      users: 'Users',
+      platformAccounts: 'Platform accounts',
+      memberships: 'Memberships',
+      assignManager: 'Assign manager to organization',
+      moderation: 'Moderation',
+      providerProfiles: 'Provider profiles',
+      providerServices: 'Provider services',
+      name: 'Name',
+      type: 'Type',
+      address: 'Address',
+      city: 'City',
+      description: 'Description',
+      capacity: 'Capacity',
+      slotMinutes: 'Slot size, minutes',
+      location: 'Location',
+      start: 'Start',
+      end: 'End',
+      userLabel: 'User',
+      organizationLabel: 'Organization',
+      title: 'Title',
+      moderationNote: 'Moderation note',
+      summary: 'Organization summary',
+      amenities: 'Amenities',
+      resourceSummary: 'Resource summary',
+      formats: 'Formats',
+      eventSummary: 'Event summary',
+      createOrganizationAction: 'Create organization',
+      createResourceAction: 'Create resource',
+      createEventAction: 'Create event',
+      assignAction: 'Assign membership',
+      approve: 'Approve',
+      reject: 'Reject',
+      selectUser: 'Select user',
+      selectOrganization: 'Select organization',
+      minuteShort: 'min',
+    },
+    vi: {
+      loading: 'Dang tai khu quan tri...',
+      mediaTitle: 'Tai media tap trung',
+      uploadLabel: 'Tai anh hoac tai lieu',
+      scope: 'Pham vi',
+      managedOrganizations: 'To chuc dang quan ly',
+      currentOrganization: 'To chuc hien tai',
+      create: 'Tao moi',
+      newOrganization: 'To chuc moi',
+      organizationResource: 'Tai nguyen cua to chuc',
+      eventSession: 'Phien su kien',
+      liveData: 'Du lieu hien tai',
+      currentContent: 'Noi dung hien tai cua to chuc',
+      users: 'Nguoi dung',
+      platformAccounts: 'Tai khoan nen tang',
+      memberships: 'Lien ket',
+      assignManager: 'Gan quan ly vao to chuc',
+      moderation: 'Kiem duyet',
+      providerProfiles: 'Ho so nha cung cap',
+      providerServices: 'Dich vu nha cung cap',
+      name: 'Ten',
+      type: 'Loai',
+      address: 'Dia chi',
+      city: 'Thanh pho',
+      description: 'Mo ta',
+      capacity: 'Suc chua',
+      slotMinutes: 'Do dai khung gio, phut',
+      location: 'Dia diem',
+      start: 'Bat dau',
+      end: 'Ket thuc',
+      userLabel: 'Nguoi dung',
+      organizationLabel: 'To chuc',
+      title: 'Chuc danh',
+      moderationNote: 'Ghi chu kiem duyet',
+      summary: 'Tom tat to chuc',
+      amenities: 'Tien ich',
+      resourceSummary: 'Tom tat tai nguyen',
+      formats: 'Hinh thuc',
+      eventSummary: 'Tom tat su kien',
+      createOrganizationAction: 'Tao to chuc',
+      createResourceAction: 'Tao tai nguyen',
+      createEventAction: 'Tao su kien',
+      assignAction: 'Gan lien ket',
+      approve: 'Duyet',
+      reject: 'Tu choi',
+      selectUser: 'Chon nguoi dung',
+      selectOrganization: 'Chon to chuc',
+      minuteShort: 'phut',
+    },
+  }[locale]
   const token = session?.accessToken
   const isAdmin = session?.user.roles.includes('Admin') ?? false
   const [organizations, setOrganizations] = useState<Organization[]>([])
@@ -616,7 +765,7 @@ export function AdminPage() {
   }
 
   if (loading) {
-    return <LoadingBlock label={t('common.loading')} />
+    return <LoadingBlock label={copy.loading} />
   }
 
   return (
@@ -652,11 +801,11 @@ export function AdminPage() {
       <section className="admin-upload-card">
         <div className="section-stack">
           <span className="section-kicker">{t('admin.upload')}</span>
-          <h2 className="section-title">Central media upload</h2>
+          <h2 className="section-title">{copy.mediaTitle}</h2>
         </div>
 
         <div className="field-group">
-          <label htmlFor="admin-upload-file">Upload image or document</label>
+          <label htmlFor="admin-upload-file">{copy.uploadLabel}</label>
           <input
             id="admin-upload-file"
             className="input-field"
@@ -684,13 +833,13 @@ export function AdminPage() {
 
       <section className="surface-card section-stack">
         <header>
-          <span className="section-kicker">Scope</span>
-          <h2 className="section-title">Managed organizations</h2>
+          <span className="section-kicker">{copy.scope}</span>
+          <h2 className="section-title">{copy.managedOrganizations}</h2>
         </header>
 
         <div className="form-grid">
           <div className="field-group">
-            <label htmlFor="selected-organization">Current organization</label>
+            <label htmlFor="selected-organization">{copy.currentOrganization}</label>
             <select
               id="selected-organization"
               className="select-field"
@@ -750,14 +899,14 @@ export function AdminPage() {
       <div className="admin-grid">
         <section className="surface-card section-stack">
           <header>
-            <span className="section-kicker">Create</span>
-            <h2 className="section-title">New organization</h2>
+            <span className="section-kicker">{copy.create}</span>
+            <h2 className="section-title">{copy.newOrganization}</h2>
           </header>
 
           <form className="form-stack" onSubmit={handleCreateOrganization}>
             <div className="form-grid">
               <div className="field-group">
-                <label htmlFor="organization-name">Name</label>
+                <label htmlFor="organization-name">{copy.name}</label>
                 <input
                   id="organization-name"
                   className="input-field"
@@ -770,7 +919,7 @@ export function AdminPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="organization-type">Type</label>
+                <label htmlFor="organization-type">{copy.type}</label>
                 <select
                   id="organization-type"
                   className="select-field"
@@ -784,14 +933,14 @@ export function AdminPage() {
                 >
                   {organizationTypes.map((organizationType) => (
                     <option key={organizationType} value={organizationType}>
-                      {organizationType}
+                      {formatOrganizationType(organizationType, locale)}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div className="field-group">
-                <label htmlFor="organization-address">Address</label>
+                <label htmlFor="organization-address">{copy.address}</label>
                 <input
                   id="organization-address"
                   className="input-field"
@@ -804,7 +953,7 @@ export function AdminPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="organization-city">City</label>
+                <label htmlFor="organization-city">{copy.city}</label>
                 <input
                   id="organization-city"
                   className="input-field"
@@ -816,7 +965,7 @@ export function AdminPage() {
               </div>
 
               <div className="field-group wide-span">
-                <label htmlFor="organization-description">Description</label>
+                <label htmlFor="organization-description">{copy.description}</label>
                 <textarea
                   id="organization-description"
                   className="textarea-field"
@@ -833,7 +982,7 @@ export function AdminPage() {
             </div>
 
             <LocalizedTextEditor
-              label="Organization summary"
+              label={copy.summary}
               value={organizationForm.content.summary}
               onChange={(value) =>
                 setOrganizationForm((current) => ({
@@ -844,7 +993,7 @@ export function AdminPage() {
             />
 
             <LocalizedListEditor
-              label="Amenities"
+              label={copy.amenities}
               value={organizationForm.content.amenities}
               onChange={(value) =>
                 setOrganizationForm((current) => ({
@@ -856,7 +1005,7 @@ export function AdminPage() {
 
             <div className="card-actions">
               <button className="solid-button" type="submit" disabled={working}>
-                Create organization
+                {copy.createOrganizationAction}
               </button>
             </div>
           </form>
@@ -864,14 +1013,14 @@ export function AdminPage() {
 
         <section className="surface-card section-stack">
           <header>
-            <span className="section-kicker">Create</span>
-            <h2 className="section-title">Organization resource</h2>
+            <span className="section-kicker">{copy.create}</span>
+            <h2 className="section-title">{copy.organizationResource}</h2>
           </header>
 
           <form className="form-stack" onSubmit={handleCreateResource}>
             <div className="form-grid">
               <div className="field-group">
-                <label htmlFor="resource-name">Name</label>
+                <label htmlFor="resource-name">{copy.name}</label>
                 <input
                   id="resource-name"
                   className="input-field"
@@ -884,7 +1033,7 @@ export function AdminPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="resource-type">Type</label>
+                <label htmlFor="resource-type">{copy.type}</label>
                 <select
                   id="resource-type"
                   className="select-field"
@@ -898,14 +1047,14 @@ export function AdminPage() {
                 >
                   {resourceTypes.map((resourceType) => (
                     <option key={resourceType} value={resourceType}>
-                      {resourceType}
+                      {formatResourceType(resourceType, locale)}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div className="field-group">
-                <label htmlFor="resource-capacity">Capacity</label>
+                <label htmlFor="resource-capacity">{copy.capacity}</label>
                 <input
                   id="resource-capacity"
                   className="input-field"
@@ -922,7 +1071,7 @@ export function AdminPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="resource-slot">Slot size, minutes</label>
+                <label htmlFor="resource-slot">{copy.slotMinutes}</label>
                 <input
                   id="resource-slot"
                   className="input-field"
@@ -940,7 +1089,7 @@ export function AdminPage() {
               </div>
 
               <div className="field-group wide-span">
-                <label htmlFor="resource-description">Description</label>
+                <label htmlFor="resource-description">{copy.description}</label>
                 <textarea
                   id="resource-description"
                   className="textarea-field"
@@ -957,7 +1106,7 @@ export function AdminPage() {
             </div>
 
             <LocalizedTextEditor
-              label="Resource summary"
+              label={copy.resourceSummary}
               value={resourceForm.content.summary}
               onChange={(value) =>
                 setResourceForm((current) => ({
@@ -968,7 +1117,7 @@ export function AdminPage() {
             />
 
             <LocalizedListEditor
-              label="Formats"
+              label={copy.formats}
               value={resourceForm.content.formats}
               onChange={(value) =>
                 setResourceForm((current) => ({
@@ -980,7 +1129,7 @@ export function AdminPage() {
 
             <div className="card-actions">
               <button className="solid-button" type="submit" disabled={working || !selectedOrganizationId}>
-                Create resource
+                {copy.createResourceAction}
               </button>
             </div>
           </form>
@@ -990,14 +1139,14 @@ export function AdminPage() {
       <div className="admin-grid">
         <section className="surface-card section-stack">
           <header>
-            <span className="section-kicker">Create</span>
-            <h2 className="section-title">Event session</h2>
+            <span className="section-kicker">{copy.create}</span>
+            <h2 className="section-title">{copy.eventSession}</h2>
           </header>
 
           <form className="form-stack" onSubmit={handleCreateEvent}>
             <div className="form-grid">
               <div className="field-group">
-                <label htmlFor="event-name">Name</label>
+                <label htmlFor="event-name">{copy.name}</label>
                 <input
                   id="event-name"
                   className="input-field"
@@ -1010,7 +1159,7 @@ export function AdminPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="event-location">Location</label>
+                <label htmlFor="event-location">{copy.location}</label>
                 <input
                   id="event-location"
                   className="input-field"
@@ -1023,7 +1172,7 @@ export function AdminPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="event-start">Start</label>
+                <label htmlFor="event-start">{copy.start}</label>
                 <input
                   id="event-start"
                   className="input-field"
@@ -1039,7 +1188,7 @@ export function AdminPage() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="event-end">End</label>
+                <label htmlFor="event-end">{copy.end}</label>
                 <input
                   id="event-end"
                   className="input-field"
@@ -1055,7 +1204,7 @@ export function AdminPage() {
               </div>
 
               <div className="field-group wide-span">
-                <label htmlFor="event-description">Description</label>
+                <label htmlFor="event-description">{copy.description}</label>
                 <textarea
                   id="event-description"
                   className="textarea-field"
@@ -1072,7 +1221,7 @@ export function AdminPage() {
             </div>
 
             <LocalizedTextEditor
-              label="Event summary"
+              label={copy.eventSummary}
               value={eventForm.content.summary}
               onChange={(value) =>
                 setEventForm((current) => ({
@@ -1084,7 +1233,7 @@ export function AdminPage() {
 
             <div className="card-actions">
               <button className="solid-button" type="submit" disabled={working || !selectedOrganizationId}>
-                Create event
+                {copy.createEventAction}
               </button>
             </div>
           </form>
@@ -1092,8 +1241,8 @@ export function AdminPage() {
 
         <section className="surface-card section-stack">
           <header>
-            <span className="section-kicker">Live data</span>
-            <h2 className="section-title">Current organization content</h2>
+            <span className="section-kicker">{copy.liveData}</span>
+            <h2 className="section-title">{copy.currentContent}</h2>
           </header>
 
           <div className="table-like">
@@ -1104,7 +1253,7 @@ export function AdminPage() {
                     <strong>{resource.name}</strong>
                     <div className="meta-line">
                       <span className="type-pill">{formatResourceType(resource.type, locale)}</span>
-                      <span className="metric-pill">{resource.slotSizeMinutes} min</span>
+                      <span className="metric-pill">{resource.slotSizeMinutes} {copy.minuteShort}</span>
                     </div>
                   </div>
                 </header>
@@ -1134,8 +1283,8 @@ export function AdminPage() {
           <div className="admin-grid">
             <section className="surface-card section-stack">
               <header>
-                <span className="section-kicker">Users</span>
-                <h2 className="section-title">Platform accounts</h2>
+                <span className="section-kicker">{copy.users}</span>
+                <h2 className="section-title">{copy.platformAccounts}</h2>
               </header>
 
               <div className="table-like">
@@ -1163,13 +1312,13 @@ export function AdminPage() {
 
             <section className="surface-card section-stack">
               <header>
-                <span className="section-kicker">Memberships</span>
-                <h2 className="section-title">Assign manager to organization</h2>
+                <span className="section-kicker">{copy.memberships}</span>
+                <h2 className="section-title">{copy.assignManager}</h2>
               </header>
 
               <form className="form-stack" onSubmit={handleAssignMembership}>
                 <div className="field-group">
-                  <label htmlFor="membership-user">User</label>
+                  <label htmlFor="membership-user">{copy.userLabel}</label>
                   <select
                     id="membership-user"
                     className="select-field"
@@ -1178,7 +1327,7 @@ export function AdminPage() {
                       setMembershipForm((current) => ({ ...current, userId: event.target.value }))
                     }
                   >
-                    <option value="">Select user</option>
+                    <option value="">{copy.selectUser}</option>
                     {users.map((account) => (
                       <option key={account.id} value={account.id}>
                         {account.email}
@@ -1188,7 +1337,7 @@ export function AdminPage() {
                 </div>
 
                 <div className="field-group">
-                  <label htmlFor="membership-organization">Organization</label>
+                  <label htmlFor="membership-organization">{copy.organizationLabel}</label>
                   <select
                     id="membership-organization"
                     className="select-field"
@@ -1200,7 +1349,7 @@ export function AdminPage() {
                       }))
                     }
                   >
-                    <option value="">Select organization</option>
+                    <option value="">{copy.selectOrganization}</option>
                     {organizations.map((organization) => (
                       <option key={organization.id} value={organization.id}>
                         {organization.name}
@@ -1210,7 +1359,7 @@ export function AdminPage() {
                 </div>
 
                 <div className="field-group">
-                  <label htmlFor="membership-title">Title</label>
+                  <label htmlFor="membership-title">{copy.title}</label>
                   <input
                     id="membership-title"
                     className="input-field"
@@ -1223,7 +1372,7 @@ export function AdminPage() {
 
                 <div className="card-actions">
                   <button className="solid-button" type="submit" disabled={working}>
-                    Assign membership
+                    {copy.assignAction}
                   </button>
                 </div>
               </form>
@@ -1233,8 +1382,8 @@ export function AdminPage() {
           <div className="admin-grid">
             <section className="surface-card section-stack">
               <header>
-                <span className="section-kicker">Moderation</span>
-                <h2 className="section-title">Provider profiles</h2>
+                <span className="section-kicker">{copy.moderation}</span>
+                <h2 className="section-title">{copy.providerProfiles}</h2>
               </header>
 
               <div className="table-like">
@@ -1263,7 +1412,7 @@ export function AdminPage() {
                     <p>{pickLocalizedText(providerProfile.content.summary, locale, providerProfile.headline)}</p>
 
                     <div className="field-group">
-                      <label htmlFor={`provider-note-${providerProfile.id}`}>Moderation note</label>
+                      <label htmlFor={`provider-note-${providerProfile.id}`}>{copy.moderationNote}</label>
                       <textarea
                         id={`provider-note-${providerProfile.id}`}
                         className="textarea-field"
@@ -1285,7 +1434,7 @@ export function AdminPage() {
                         disabled={working}
                         onClick={() => void handleReviewProviderProfile(providerProfile.id, 'Approved')}
                       >
-                        Approve
+                        {copy.approve}
                       </button>
                       <button
                         type="button"
@@ -1293,7 +1442,7 @@ export function AdminPage() {
                         disabled={working}
                         onClick={() => void handleReviewProviderProfile(providerProfile.id, 'Rejected')}
                       >
-                        Reject
+                        {copy.reject}
                       </button>
                     </div>
                   </article>
@@ -1303,8 +1452,8 @@ export function AdminPage() {
 
             <section className="surface-card section-stack">
               <header>
-                <span className="section-kicker">Moderation</span>
-                <h2 className="section-title">Provider services</h2>
+                <span className="section-kicker">{copy.moderation}</span>
+                <h2 className="section-title">{copy.providerServices}</h2>
               </header>
 
               <div className="table-like">
@@ -1333,7 +1482,7 @@ export function AdminPage() {
                     <p>{pickLocalizedText(resource.content.summary, locale, resource.description ?? '')}</p>
 
                     <div className="field-group">
-                      <label htmlFor={`resource-note-${resource.id}`}>Moderation note</label>
+                      <label htmlFor={`resource-note-${resource.id}`}>{copy.moderationNote}</label>
                       <textarea
                         id={`resource-note-${resource.id}`}
                         className="textarea-field"
@@ -1355,7 +1504,7 @@ export function AdminPage() {
                         disabled={working}
                         onClick={() => void handleReviewProviderResource(resource.id, 'Approved')}
                       >
-                        Approve
+                        {copy.approve}
                       </button>
                       <button
                         type="button"
@@ -1363,7 +1512,7 @@ export function AdminPage() {
                         disabled={working}
                         onClick={() => void handleReviewProviderResource(resource.id, 'Rejected')}
                       >
-                        Reject
+                        {copy.reject}
                       </button>
                     </div>
                   </article>

@@ -20,7 +20,7 @@ export function AppLayout() {
               <span className="brand-badge">BF</span>
               <span>
                 <strong>BookingFlow</strong>
-                <small>Clubs, bars, coaches, providers and events</small>
+                <small>{t('layout.brandTagline')}</small>
               </span>
             </NavLink>
           </div>
@@ -34,7 +34,7 @@ export function AppLayout() {
                   className={supportedLocale === locale ? 'locale-button active' : 'locale-button'}
                   onClick={() => setLocale(supportedLocale)}
                 >
-                  {supportedLocale.toUpperCase()}
+                  {t(`locale.${supportedLocale}`)}
                 </button>
               ))}
             </div>

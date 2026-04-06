@@ -1,65 +1,6 @@
 import type { Locale } from '../types/api'
 
-type MessageKey =
-  | 'nav.catalog'
-  | 'nav.bookings'
-  | 'nav.admin'
-  | 'nav.provider'
-  | 'auth.signIn'
-  | 'auth.signOut'
-  | 'layout.clientArea'
-  | 'layout.adminArea'
-  | 'layout.providerArea'
-  | 'home.heroKicker'
-  | 'home.heroTitle'
-  | 'home.heroSubtitle'
-  | 'home.explore'
-  | 'home.bookings'
-  | 'home.admin'
-  | 'home.provider'
-  | 'home.login'
-  | 'home.popularOrgs'
-  | 'home.coaches'
-  | 'home.events'
-  | 'home.searchPlaceholder'
-  | 'home.noResults'
-  | 'organization.bookNow'
-  | 'organization.available'
-  | 'organization.inactive'
-  | 'organization.amenities'
-  | 'organization.highlights'
-  | 'organization.gallery'
-  | 'organization.coaches'
-  | 'organization.resources'
-  | 'organization.events'
-  | 'organization.slots'
-  | 'organization.loginToBook'
-  | 'coach.about'
-  | 'coach.specialties'
-  | 'coach.achievements'
-  | 'coach.formats'
-  | 'coach.experience'
-  | 'coach.bookSession'
-  | 'common.address'
-  | 'common.city'
-  | 'common.website'
-  | 'common.phone'
-  | 'common.email'
-  | 'common.gallery'
-  | 'common.loading'
-  | 'common.upcomingEvents'
-  | 'common.confirmed'
-  | 'admin.title'
-  | 'admin.subtitle'
-  | 'admin.organizations'
-  | 'admin.resources'
-  | 'admin.events'
-  | 'admin.upload'
-  | 'admin.locale.ru'
-  | 'admin.locale.en'
-  | 'admin.locale.vi'
-
-const messages: Record<Locale, Record<MessageKey, string>> = {
+const messages: Record<Locale, Record<string, string>> = {
   ru: {
     'nav.catalog': 'Каталог',
     'nav.bookings': 'Мои брони',
@@ -67,12 +8,16 @@ const messages: Record<Locale, Record<MessageKey, string>> = {
     'nav.provider': 'Provider Studio',
     'auth.signIn': 'Войти',
     'auth.signOut': 'Выйти',
+    'layout.brandTagline': 'Онлайн-запись для клубов, студий, баров и частных специалистов',
     'layout.clientArea': 'Клиентский кабинет',
     'layout.adminArea': 'Панель управления контентом',
     'layout.providerArea': 'Кабинет исполнителя',
-    'home.heroKicker': 'Booking platform for premium clubs and studios',
-    'home.heroTitle': 'Бронируйте столики, персональные тренировки и события в одном эстетичном интерфейсе.',
-    'home.heroSubtitle': 'Новый BookingFlow вдохновлён визуальным языком современных booking-платформ: крупные фото, понятный путь к записи и контент, который продаёт атмосферу.',
+    'locale.ru': 'Рус',
+    'locale.en': 'Eng',
+    'locale.vi': 'Vie',
+    'home.heroKicker': 'Сервис онлайн-записи для современных пространств',
+    'home.heroTitle': 'Запись на услуги, столики и события в одном аккуратном интерфейсе.',
+    'home.heroSubtitle': 'BookingFlow помогает клубам, студиям и частным специалистам принимать бронирования, оформлять витрину услуг и вести запись без лишнего шума.',
     'home.explore': 'Открыть каталог',
     'home.bookings': 'Перейти к моим броням',
     'home.admin': 'Открыть Admin Studio',
@@ -109,15 +54,19 @@ const messages: Record<Locale, Record<MessageKey, string>> = {
     'common.loading': 'Загрузка...',
     'common.upcomingEvents': 'Ближайшие события',
     'common.confirmed': 'Подтверждено',
+    'common.date': 'Дата',
+    'common.location': 'Локация',
+    'common.details': 'Подробнее',
+    'common.from': 'от',
+    'common.seats': 'Места',
+    'common.services': 'Услуги',
+    'common.loadingShort': 'Загрузка',
     'admin.title': 'Контент и медиа',
     'admin.subtitle': 'Управление организациями, тренерами, событиями, мультиязычным контентом и файлами.',
     'admin.organizations': 'Организации',
     'admin.resources': 'Ресурсы',
     'admin.events': 'События',
     'admin.upload': 'Загрузить в S3/MinIO',
-    'admin.locale.ru': 'Русский',
-    'admin.locale.en': 'Английский',
-    'admin.locale.vi': 'Вьетнамский',
   },
   en: {
     'nav.catalog': 'Catalog',
@@ -126,12 +75,16 @@ const messages: Record<Locale, Record<MessageKey, string>> = {
     'nav.provider': 'Provider Studio',
     'auth.signIn': 'Sign in',
     'auth.signOut': 'Sign out',
+    'layout.brandTagline': 'Online booking for clubs, studios, venues and independent providers',
     'layout.clientArea': 'Client area',
     'layout.adminArea': 'Content management area',
     'layout.providerArea': 'Provider area',
-    'home.heroKicker': 'Booking platform for premium clubs and studios',
-    'home.heroTitle': 'Reserve tables, private coaching sessions and curated events in one elegant interface.',
-    'home.heroSubtitle': 'The renewed BookingFlow borrows the visual language of modern booking products: strong photography, clear booking flows and content that sells atmosphere.',
+    'locale.ru': 'Rus',
+    'locale.en': 'Eng',
+    'locale.vi': 'Vie',
+    'home.heroKicker': 'Online booking software for modern service businesses',
+    'home.heroTitle': 'Manage appointments, tables and events in one clean customer journey.',
+    'home.heroSubtitle': 'BookingFlow gives clubs, studios and independent providers a premium storefront, clear scheduling and a polished booking flow inspired by modern product design.',
     'home.explore': 'Explore spaces',
     'home.bookings': 'Open my bookings',
     'home.admin': 'Open Admin Studio',
@@ -168,15 +121,19 @@ const messages: Record<Locale, Record<MessageKey, string>> = {
     'common.loading': 'Loading...',
     'common.upcomingEvents': 'Upcoming events',
     'common.confirmed': 'Confirmed',
+    'common.date': 'Date',
+    'common.location': 'Location',
+    'common.details': 'Details',
+    'common.from': 'from',
+    'common.seats': 'Seats',
+    'common.services': 'Services',
+    'common.loadingShort': 'Loading',
     'admin.title': 'Content and media',
     'admin.subtitle': 'Manage venues, coaches, events, multilingual content and uploaded files.',
     'admin.organizations': 'Organizations',
     'admin.resources': 'Resources',
     'admin.events': 'Events',
     'admin.upload': 'Upload to S3/MinIO',
-    'admin.locale.ru': 'Russian',
-    'admin.locale.en': 'English',
-    'admin.locale.vi': 'Vietnamese',
   },
   vi: {
     'nav.catalog': 'Danh muc',
@@ -185,12 +142,16 @@ const messages: Record<Locale, Record<MessageKey, string>> = {
     'nav.provider': 'Provider Studio',
     'auth.signIn': 'Dang nhap',
     'auth.signOut': 'Dang xuat',
+    'layout.brandTagline': 'Nen tang dat lich cho club, studio, dia diem va nha cung cap doc lap',
     'layout.clientArea': 'Khu vuc khach hang',
     'layout.adminArea': 'Khu quan ly noi dung',
     'layout.providerArea': 'Khu nha cung cap',
-    'home.heroKicker': 'Nen tang dat lich cho club va studio cao cap',
-    'home.heroTitle': 'Dat ban, dat buoi tap rieng va su kien trong mot giao dien dep va ro rang.',
-    'home.heroSubtitle': 'BookingFlow moi lay cam hung tu cac san pham booking hien dai: hinh anh lon, hanh trinh dat lich de hieu va noi dung lam ro gia tri cua khong gian.',
+    'locale.ru': 'Nga',
+    'locale.en': 'Anh',
+    'locale.vi': 'Viet',
+    'home.heroKicker': 'Phan mem dat lich cho mo hinh dich vu hien dai',
+    'home.heroTitle': 'Quan ly lich hen, dat ban va su kien trong mot hanh trinh ro rang va de dung.',
+    'home.heroSubtitle': 'BookingFlow giup club, studio va nha cung cap doc lap co trang gioi thieu chuyen nghiep, lich dat de hieu va trai nghiem dat lich muot ma.',
     'home.explore': 'Kham pha dia diem',
     'home.bookings': 'Mo lich dat cua toi',
     'home.admin': 'Mo Admin Studio',
@@ -227,18 +188,22 @@ const messages: Record<Locale, Record<MessageKey, string>> = {
     'common.loading': 'Dang tai...',
     'common.upcomingEvents': 'Su kien sap toi',
     'common.confirmed': 'Da xac nhan',
+    'common.date': 'Ngay',
+    'common.location': 'Dia diem',
+    'common.details': 'Chi tiet',
+    'common.from': 'tu',
+    'common.seats': 'Cho',
+    'common.services': 'Dich vu',
+    'common.loadingShort': 'Dang tai',
     'admin.title': 'Noi dung va media',
     'admin.subtitle': 'Quan ly dia diem, HLV, su kien, noi dung da ngon ngu va tep tai len.',
     'admin.organizations': 'To chuc',
     'admin.resources': 'Tai nguyen',
     'admin.events': 'Su kien',
     'admin.upload': 'Tai len S3/MinIO',
-    'admin.locale.ru': 'Tieng Nga',
-    'admin.locale.en': 'Tieng Anh',
-    'admin.locale.vi': 'Tieng Viet',
   },
 }
 
-export function getMessage(locale: Locale, key: MessageKey) {
-  return messages[locale][key]
+export function getMessage(locale: Locale, key: string) {
+  return messages[locale][key] ?? messages.ru[key] ?? key
 }
