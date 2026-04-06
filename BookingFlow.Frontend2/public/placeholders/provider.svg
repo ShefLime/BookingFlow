@@ -1,0 +1,13 @@
+<svg width="900" height="900" viewBox="0 0 900 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="900" rx="36" fill="#11161D"/>
+  <rect x="36" y="36" width="828" height="828" rx="28" fill="url(#paint0_linear)"/>
+  <circle cx="450" cy="326" r="134" fill="#F4F6F8" fill-opacity="0.08"/>
+  <path d="M234 692C234 571.602 331.602 474 452 474C572.398 474 670 571.602 670 692V706H234V692Z" fill="#F4F6F8" fill-opacity="0.08"/>
+  <text x="74" y="794" fill="#F4F6F8" fill-opacity="0.92" font-family="Montserrat, Arial, sans-serif" font-size="44" font-weight="700">Специалист</text>
+  <defs>
+    <linearGradient id="paint0_linear" x1="70" y1="36" x2="836" y2="864" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#16222D"/>
+      <stop offset="1" stop-color="#0B1017"/>
+    </linearGradient>
+  </defs>
+</svg>

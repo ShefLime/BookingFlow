@@ -1,0 +1,19 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" rx="40" fill="#0D1016"/>
+  <rect x="40" y="40" width="1120" height="720" rx="32" fill="url(#paint0_linear)"/>
+  <circle cx="952" cy="178" r="150" fill="#4A89FF" fill-opacity="0.17"/>
+  <circle cx="243" cy="620" r="188" fill="#C8FF4A" fill-opacity="0.11"/>
+  <rect x="182" y="226" width="836" height="286" rx="28" fill="#F4F6F8" fill-opacity="0.05"/>
+  <rect x="252" y="302" width="220" height="134" rx="20" fill="#F4F6F8" fill-opacity="0.09"/>
+  <rect x="520" y="302" width="428" height="28" rx="14" fill="#F4F6F8" fill-opacity="0.11"/>
+  <rect x="520" y="352" width="358" height="28" rx="14" fill="#F4F6F8" fill-opacity="0.08"/>
+  <rect x="520" y="402" width="284" height="28" rx="14" fill="#F4F6F8" fill-opacity="0.08"/>
+  <text x="90" y="644" fill="#F4F6F8" fill-opacity="0.92" font-family="Montserrat, Arial, sans-serif" font-size="56" font-weight="700">События и площадки</text>
+  <text x="90" y="696" fill="#F4F6F8" fill-opacity="0.62" font-family="Montserrat, Arial, sans-serif" font-size="28">Воркшопы, встречи и публичные программы</text>
+  <defs>
+    <linearGradient id="paint0_linear" x1="90" y1="40" x2="1110" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#141A23"/>
+      <stop offset="1" stop-color="#0A0E14"/>
+    </linearGradient>
+  </defs>
+</svg>
