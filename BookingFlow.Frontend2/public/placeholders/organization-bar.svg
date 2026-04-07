@@ -1,0 +1,16 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" rx="40" fill="#111216"/>
+  <rect x="40" y="40" width="1120" height="720" rx="32" fill="url(#paint0_linear)"/>
+  <circle cx="956" cy="182" r="156" fill="#D8A33A" fill-opacity="0.17"/>
+  <circle cx="285" cy="632" r="200" fill="#4A89FF" fill-opacity="0.15"/>
+  <rect x="186" y="256" width="828" height="56" rx="28" fill="#F4F6F8" fill-opacity="0.08"/>
+  <rect x="234" y="344" width="732" height="168" rx="28" fill="#F4F6F8" fill-opacity="0.05"/>
+  <text x="90" y="644" fill="#F4F6F8" fill-opacity="0.92" font-family="Montserrat, Arial, sans-serif" font-size="56" font-weight="700">Бар и вечерняя бронь</text>
+  <text x="90" y="696" fill="#F4F6F8" fill-opacity="0.62" font-family="Montserrat, Arial, sans-serif" font-size="28">Столики, ужины и события в один поток</text>
+  <defs>
+    <linearGradient id="paint0_linear" x1="80" y1="40" x2="1120" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#191C23"/>
+      <stop offset="1" stop-color="#0F1014"/>
+    </linearGradient>
+  </defs>
+</svg>

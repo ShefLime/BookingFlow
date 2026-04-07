@@ -18,6 +18,12 @@ public sealed class DatabaseSeeder(ApplicationDbContext dbContext)
     private const string AtRiskClientSubject = "77777777-7777-7777-7777-777777777777";
     private const string VipClientSubject = "88888888-8888-8888-8888-888888888888";
     private const string FreshClientSubject = "99999999-9999-9999-9999-999999999999";
+    private const string RestaurantManagerSubject = "aaaaaaa1-1111-1111-1111-111111111111";
+    private const string SportsManagerSubject = "bbbbbbb2-2222-2222-2222-222222222222";
+    private const string ApprovedProviderTwoSubject = "ccccccc3-3333-3333-3333-333333333333";
+    private const string PendingProviderTwoSubject = "ddddddd4-4444-4444-4444-444444444444";
+    private const string WeekendClientSubject = "eeeeeee5-5555-5555-5555-555555555555";
+    private const string CorporateClientSubject = "fffffff6-6666-6666-6666-666666666666";
 
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
@@ -102,8 +108,78 @@ public sealed class DatabaseSeeder(ApplicationDbContext dbContext)
             Array.Empty<UserRole>(),
             cancellationToken);
 
+        var restaurantManagerUser = await EnsureUserAsync(
+            RestaurantManagerSubject,
+            "restaurant.manager@bookingflow.local",
+            "Elena",
+            "Morozova",
+            "+10000000010",
+            Array.Empty<UserRole>(),
+            cancellationToken);
+
+        var sportsManagerUser = await EnsureUserAsync(
+            SportsManagerSubject,
+            "sports.manager@bookingflow.local",
+            "Noah",
+            "Le",
+            "+10000000011",
+            Array.Empty<UserRole>(),
+            cancellationToken);
+
+        var approvedProviderTwoUser = await EnsureUserAsync(
+            ApprovedProviderTwoSubject,
+            "pilates@bookingflow.local",
+            "Elena",
+            "Park",
+            "+10000000012",
+            Array.Empty<UserRole>(),
+            cancellationToken);
+
+        var pendingProviderTwoUser = await EnsureUserAsync(
+            PendingProviderTwoSubject,
+            "icebath@bookingflow.local",
+            "Nhat",
+            "Le",
+            "+10000000013",
+            Array.Empty<UserRole>(),
+            cancellationToken);
+
+        var weekendClientUser = await EnsureUserAsync(
+            WeekendClientSubject,
+            "weekend@bookingflow.local",
+            "Olivia",
+            "Nguyen",
+            "+10000000014",
+            Array.Empty<UserRole>(),
+            cancellationToken);
+
+        var corporateClientUser = await EnsureUserAsync(
+            CorporateClientSubject,
+            "corporate@bookingflow.local",
+            "Artem",
+            "Volkov",
+            "+10000000015",
+            Array.Empty<UserRole>(),
+            cancellationToken);
+
         if (await _dbContext.Organizations.AnyAsync(cancellationToken))
         {
+            await SeedExpandedCatalogAsync(
+                adminUser,
+                clientUser,
+                managerUser,
+                approvedProviderUser,
+                pendingProviderUser,
+                returningClientUser,
+                vipClientUser,
+                freshClientUser,
+                restaurantManagerUser,
+                sportsManagerUser,
+                approvedProviderTwoUser,
+                pendingProviderTwoUser,
+                weekendClientUser,
+                corporateClientUser,
+                cancellationToken);
             return;
         }
 
@@ -935,6 +1011,626 @@ public sealed class DatabaseSeeder(ApplicationDbContext dbContext)
             CreateAnalyticsEvents(bar, tableOne, tableTwo, jazzNight, 60, 38, 14)
                 .Concat(CreateAnalyticsEvents(fitnessClub, trainer, trainerTwo, boxingWorkshop, 92, 76, 21))
                 .Concat(CreateAnalyticsEvents(fitnessClub, trainerThree, null, null, 34, 19, 0)));
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        await SeedExpandedCatalogAsync(
+            adminUser,
+            clientUser,
+            managerUser,
+            approvedProviderUser,
+            pendingProviderUser,
+            returningClientUser,
+            vipClientUser,
+            freshClientUser,
+            restaurantManagerUser,
+            sportsManagerUser,
+            approvedProviderTwoUser,
+            pendingProviderTwoUser,
+            weekendClientUser,
+            corporateClientUser,
+            cancellationToken);
+    }
+
+    private async Task SeedExpandedCatalogAsync(
+        User adminUser,
+        User clientUser,
+        User managerUser,
+        User approvedProviderUser,
+        User pendingProviderUser,
+        User returningClientUser,
+        User vipClientUser,
+        User freshClientUser,
+        User restaurantManagerUser,
+        User sportsManagerUser,
+        User approvedProviderTwoUser,
+        User pendingProviderTwoUser,
+        User weekendClientUser,
+        User corporateClientUser,
+        CancellationToken cancellationToken)
+    {
+        if (await _dbContext.Organizations.AnyAsync(x => x.Name == "Arena 7 Padel Center", cancellationToken))
+        {
+            return;
+        }
+
+        var padelCenter = new Organization
+        {
+            Name = "Arena 7 Padel Center",
+            Type = OrganizationType.SportsCenter,
+            Description = "Padel center with courts, recovery rooms and weekly community sessions.",
+            TimeZone = "Asia/Ho_Chi_Minh",
+            Address = "17 District 2 Loop",
+            City = "Ho Chi Minh City",
+            Phone = "+84 28 7107 7000",
+            Email = "hello@arena7.flow",
+            WebsiteUrl = "https://bookingflow.local/arena-7-padel-center",
+            CoverImageUrl = "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?auto=format&fit=crop&w=1600&q=80",
+            GalleryJson = StructuredContentSerializer.Serialize(new[]
+            {
+                new MediaAssetItem { Url = "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?auto=format&fit=crop&w=1600&q=80", Kind = "image", Title = "Indoor courts" },
+                new MediaAssetItem { Url = "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1600&q=80", Kind = "image", Title = "Match day" }
+            }),
+            ContentJson = StructuredContentSerializer.Serialize(new OrganizationContent
+            {
+                HeroTitle = new LocalizedTextSet
+                {
+                    Ru = "Падел, спарринги и клубный ритм на всю неделю",
+                    En = "Padel courts, sparring and a weekly club rhythm",
+                    Vi = "San padel, sparring va nhip sinh hoat cau lac bo ca tuan"
+                },
+                HeroSubtitle = new LocalizedTextSet
+                {
+                    Ru = "Современный центр для игры, тренировок и спокойного recovery после матча.",
+                    En = "A modern center for play, coaching and calm recovery after every match.",
+                    Vi = "Trung tam hien dai de choi, tap luyen va recovery sau moi tran."
+                },
+                Summary = new LocalizedTextSet
+                {
+                    Ru = "Подходит для новичков, корпоративных матчей и регулярных игроков.",
+                    En = "Designed for beginners, corporate games and regular players.",
+                    Vi = "Phu hop cho nguoi moi, tran dau doanh nghiep va nguoi choi thuong xuyen."
+                },
+                Amenities = new LocalizedStringCollectionSet
+                {
+                    Ru = new[] { "Крытые корты", "Аренда ракеток", "Recovery-комната", "Турниры по выходным" },
+                    En = new[] { "Indoor courts", "Racket rental", "Recovery room", "Weekend tournaments" },
+                    Vi = new[] { "San trong nha", "Cho thue vot", "Phong recovery", "Giai dau cuoi tuan" }
+                },
+                ServiceHighlights = new LocalizedStringCollectionSet
+                {
+                    Ru = new[] { "Матчи 2x2", "Тренировки с coach", "Командные слоты", "Вечерняя лига" },
+                    En = new[] { "2x2 matches", "Coached sessions", "Team slots", "Evening league" },
+                    Vi = new[] { "Tran 2x2", "Buoi co HLV", "Slot cho doi nhom", "Giai toi" }
+                }
+            }),
+            IsActive = true
+        };
+
+        var emberKitchen = new Organization
+        {
+            Name = "Ember Kitchen Hall",
+            Type = OrganizationType.Restaurant,
+            Description = "Contemporary restaurant with terrace seating, private dining and chef's counter.",
+            TimeZone = "Asia/Ho_Chi_Minh",
+            Address = "41 Nguyen Hue",
+            City = "Ho Chi Minh City",
+            Phone = "+84 28 7300 4100",
+            Email = "host@emberhall.flow",
+            WebsiteUrl = "https://bookingflow.local/ember-kitchen-hall",
+            CoverImageUrl = "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1600&q=80",
+            GalleryJson = StructuredContentSerializer.Serialize(new[]
+            {
+                new MediaAssetItem { Url = "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1600&q=80", Kind = "image", Title = "Dining hall" },
+                new MediaAssetItem { Url = "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1600&q=80", Kind = "image", Title = "Chef counter" }
+            }),
+            ContentJson = StructuredContentSerializer.Serialize(new OrganizationContent
+            {
+                HeroTitle = new LocalizedTextSet
+                {
+                    Ru = "Ужины, терраса и private room без суеты",
+                    En = "Dinner service, terrace seating and a calm private room",
+                    Vi = "Bua toi, terrace va phong rieng trong khong gian tinh gon"
+                },
+                HeroSubtitle = new LocalizedTextSet
+                {
+                    Ru = "Ресторан для спокойных встреч, семейных вечеров и камерных деловых ужинов.",
+                    En = "A restaurant for thoughtful dinners, family evenings and small business gatherings.",
+                    Vi = "Nha hang cho bua toi chu dao, toi gia dinh va gap go cong viec nho."
+                },
+                Summary = new LocalizedTextSet
+                {
+                    Ru = "Хорошо работает и для спонтанной брони, и для плановых ужинов.",
+                    En = "Works equally well for spontaneous reservations and planned evenings.",
+                    Vi = "Phu hop cho dat ban ngau hung va bua toi da len ke hoach."
+                },
+                Amenities = new LocalizedStringCollectionSet
+                {
+                    Ru = new[] { "Терраса", "Chef's counter", "Private room", "Быстрый депозит" },
+                    En = new[] { "Terrace", "Chef's counter", "Private room", "Fast deposit flow" },
+                    Vi = new[] { "Terrace", "Chef's counter", "Private room", "Dat coc nhanh" }
+                },
+                ServiceHighlights = new LocalizedStringCollectionSet
+                {
+                    Ru = new[] { "Семейные ужины", "Деловые встречи", "Chef tasting", "Воскресный бранч" },
+                    En = new[] { "Family dinners", "Business meetings", "Chef tasting", "Sunday brunch" },
+                    Vi = new[] { "Bua toi gia dinh", "Gap go cong viec", "Chef tasting", "Brunch chu Nhat" }
+                }
+            }),
+            IsActive = true
+        };
+
+        var northlightVenue = new Organization
+        {
+            Name = "Northlight Event Loft",
+            Type = OrganizationType.EventVenue,
+            Description = "Loft venue for workshops, small launches and community evenings.",
+            TimeZone = "Asia/Ho_Chi_Minh",
+            Address = "9 Thu Thiem Riverside",
+            City = "Ho Chi Minh City",
+            Phone = "+84 28 7999 2200",
+            Email = "team@northlight.flow",
+            WebsiteUrl = "https://bookingflow.local/northlight-event-loft",
+            CoverImageUrl = "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1600&q=80",
+            GalleryJson = StructuredContentSerializer.Serialize(new[]
+            {
+                new MediaAssetItem { Url = "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1600&q=80", Kind = "image", Title = "Main loft" },
+                new MediaAssetItem { Url = "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1600&q=80", Kind = "image", Title = "Evening event" }
+            }),
+            ContentJson = StructuredContentSerializer.Serialize(new OrganizationContent
+            {
+                HeroTitle = new LocalizedTextSet
+                {
+                    Ru = "Лофт для воркшопов, запусков и камерных событий",
+                    En = "A loft for workshops, launches and small community events",
+                    Vi = "Loft cho workshop, launch va su kien cong dong quy mo nho"
+                },
+                HeroSubtitle = new LocalizedTextSet
+                {
+                    Ru = "Гибкое пространство с готовыми слотами под бренд-события и образовательные форматы.",
+                    En = "A flexible venue with ready booking slots for brand activations and learning formats.",
+                    Vi = "Khong gian linh hoat voi slot dat san cho su kien thuong hieu va giao duc."
+                },
+                Summary = new LocalizedTextSet
+                {
+                    Ru = "Подходит для событий на 20-120 человек.",
+                    En = "Suitable for events from 20 to 120 guests.",
+                    Vi = "Phu hop cho su kien 20-120 khach."
+                },
+                Amenities = new LocalizedStringCollectionSet
+                {
+                    Ru = new[] { "Сцена и свет", "Фойе", "Projection-ready hall", "Помощь координатора" },
+                    En = new[] { "Stage and lights", "Foyer", "Projection-ready hall", "Coordinator support" },
+                    Vi = new[] { "San khau va den", "Khu foyer", "Hall co san projection", "Ho tro dieu phoi" }
+                },
+                ServiceHighlights = new LocalizedStringCollectionSet
+                {
+                    Ru = new[] { "Лекции", "Запуски брендов", "Community nights", "Съёмочные дни" },
+                    En = new[] { "Lectures", "Brand launches", "Community nights", "Production days" },
+                    Vi = new[] { "Bai noi chuyen", "Launch thuong hieu", "Dem cong dong", "Ngay quay chup" }
+                }
+            }),
+            IsActive = true
+        };
+
+        var courtOne = new Resource
+        {
+            Organization = padelCenter,
+            Name = "Court Alpha",
+            Type = ResourceType.Court,
+            Description = "Indoor panoramic court for fast-paced doubles matches.",
+            Capacity = 4,
+            SlotSizeMinutes = 90,
+            PriceFrom = 64,
+            IsActive = true
+        };
+
+        var courtTwo = new Resource
+        {
+            Organization = padelCenter,
+            Name = "Court Sunset",
+            Type = ResourceType.Court,
+            Description = "Club court with softer evening lights and premium rackets.",
+            Capacity = 4,
+            SlotSizeMinutes = 90,
+            PriceFrom = 72,
+            IsActive = true
+        };
+
+        var recoveryRoom = new Resource
+        {
+            Organization = padelCenter,
+            Name = "Recovery Room",
+            Type = ResourceType.Room,
+            Description = "Post-match mobility room with guided recovery slots.",
+            Capacity = 4,
+            SlotSizeMinutes = 60,
+            PriceFrom = 24,
+            IsActive = true
+        };
+
+        var terraceTable = new Resource
+        {
+            Organization = emberKitchen,
+            Name = "Terrace Table",
+            Type = ResourceType.Table,
+            Description = "Outdoor table for up to 4 guests.",
+            Capacity = 4,
+            SlotSizeMinutes = 120,
+            PriceFrom = 36,
+            IsActive = true
+        };
+
+        var chefsCounter = new Resource
+        {
+            Organization = emberKitchen,
+            Name = "Chef's Counter",
+            Type = ResourceType.VipTable,
+            Description = "Counter seating facing the open kitchen for 2 guests.",
+            Capacity = 2,
+            SlotSizeMinutes = 150,
+            PriceFrom = 58,
+            IsActive = true
+        };
+
+        var privateRoom = new Resource
+        {
+            Organization = emberKitchen,
+            Name = "Private Room",
+            Type = ResourceType.Room,
+            Description = "Private dining room for teams and family celebrations.",
+            Capacity = 10,
+            SlotSizeMinutes = 180,
+            PriceFrom = 180,
+            IsActive = true
+        };
+
+        var mainHall = new Resource
+        {
+            Organization = northlightVenue,
+            Name = "Main Hall",
+            Type = ResourceType.Hall,
+            Description = "Main event hall for workshops, launches and showcase evenings.",
+            Capacity = 120,
+            SlotSizeMinutes = 240,
+            PriceFrom = 420,
+            IsActive = true
+        };
+
+        var meetingRoom = new Resource
+        {
+            Organization = northlightVenue,
+            Name = "Briefing Room",
+            Type = ResourceType.Room,
+            Description = "Smaller room for prep, speaker briefing and closed sessions.",
+            Capacity = 16,
+            SlotSizeMinutes = 120,
+            PriceFrom = 88,
+            IsActive = true
+        };
+
+        var approvedProviderTwoProfile = new ProviderProfile
+        {
+            User = approvedProviderTwoUser,
+            DisplayName = "Elena Park",
+            Headline = "Pilates mobility coach for recovery, posture and controlled strength",
+            City = "Ho Chi Minh City",
+            TimeZone = "Asia/Ho_Chi_Minh",
+            Location = "District 2 mobile sessions",
+            AvatarImageUrl = "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=900&q=80",
+            CoverImageUrl = "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1600&q=80",
+            GalleryJson = StructuredContentSerializer.Serialize(new[]
+            {
+                new MediaAssetItem { Url = "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1600&q=80", Kind = "image", Title = "Mat session" }
+            }),
+            ContentJson = StructuredContentSerializer.Serialize(new ProviderContent
+            {
+                Summary = new LocalizedTextSet
+                {
+                    Ru = "Частный coach по пилатесу и mobility для восстановления и осанки.",
+                    En = "Independent pilates and mobility coach for posture and recovery.",
+                    Vi = "Coach pilates va mobility doc lap cho tu the va phuc hoi."
+                },
+                Biography = new LocalizedTextSet
+                {
+                    Ru = "Елена работает с клиентами, которым важны контроль движения, мягкая сила и спокойный темп прогресса.",
+                    En = "Elena works with clients who want movement control, soft strength and sustainable progress.",
+                    Vi = "Elena lam viec voi khach can kiem soat chuyen dong, suc manh mem va tien bo ben vung."
+                }
+            }),
+            ApprovalStatus = ModerationStatus.Approved,
+            ReviewedAtUtc = BookingFlowClock.UtcNow.AddDays(-8),
+            ReviewedByUserId = adminUser.Id
+        };
+
+        var pendingProviderTwoProfile = new ProviderProfile
+        {
+            User = pendingProviderTwoUser,
+            DisplayName = "Nhat Le",
+            Headline = "Cold plunge and breath-led reset rituals",
+            City = "Ho Chi Minh City",
+            TimeZone = "Asia/Ho_Chi_Minh",
+            Location = "Thao Dien home studio",
+            AvatarImageUrl = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=80",
+            CoverImageUrl = "https://images.unsplash.com/photo-1519834785169-98be25ec3f84?auto=format&fit=crop&w=1600&q=80",
+            ContentJson = StructuredContentSerializer.Serialize(new ProviderContent
+            {
+                Summary = new LocalizedTextSet
+                {
+                    Ru = "Новый профиль для модерации восстановительных ледяных и дыхательных практик.",
+                    En = "New moderation profile for cold plunge and breath reset sessions.",
+                    Vi = "Ho so moi cho xet duyet ve cold plunge va breath reset."
+                }
+            }),
+            ApprovalStatus = ModerationStatus.PendingApproval
+        };
+
+        var pilatesDeck = new Resource
+        {
+            ProviderProfile = approvedProviderTwoProfile,
+            Name = "Pilates Mobility Deck",
+            Type = ResourceType.ServiceSpot,
+            Description = "Private mat-based pilates and mobility session with props included.",
+            Location = "District 2 mobile sessions",
+            Capacity = 3,
+            SlotSizeMinutes = 75,
+            ExperienceYears = 9,
+            PriceFrom = 44,
+            AvatarImageUrl = approvedProviderTwoProfile.AvatarImageUrl,
+            CoverImageUrl = approvedProviderTwoProfile.CoverImageUrl,
+            ContentJson = StructuredContentSerializer.Serialize(new ResourceContent
+            {
+                Summary = new LocalizedTextSet
+                {
+                    Ru = "Сессия для осанки, мобилизации и спокойной силовой работы на коврике.",
+                    En = "A session for posture, mobility and calm mat-based strength work.",
+                    Vi = "Buoi tap cho tu the, mobility va suc manh nhe tren tham."
+                },
+                Formats = new LocalizedStringCollectionSet
+                {
+                    Ru = new[] { "Private 1:1", "Дуэт", "Posture reset" },
+                    En = new[] { "Private 1:1", "Duo", "Posture reset" },
+                    Vi = new[] { "Private 1:1", "Duo", "Posture reset" }
+                }
+            }),
+            ApprovalStatus = ModerationStatus.Approved,
+            IsActive = true
+        };
+
+        var coldPlungeReset = new Resource
+        {
+            ProviderProfile = pendingProviderTwoProfile,
+            Name = "Cold Plunge Reset",
+            Type = ResourceType.ServiceSpot,
+            Description = "Guided ice bath and breathing practice in a private studio.",
+            Location = "Thao Dien home studio",
+            Capacity = 2,
+            SlotSizeMinutes = 60,
+            PriceFrom = 48,
+            ApprovalStatus = ModerationStatus.PendingApproval,
+            IsActive = true
+        };
+
+        var fitnessClub = await _dbContext.Organizations.SingleAsync(x => x.Name == "Pulse Fitness Club", cancellationToken);
+        var harborBar = await _dbContext.Organizations.SingleAsync(x => x.Name == "Harbor Bar", cancellationToken);
+        var approvedMaiProfile = await _dbContext.ProviderProfiles.SingleAsync(x => x.UserId == approvedProviderUser.Id, cancellationToken);
+
+        var emberManagerMembership = new OrganizationMembership
+        {
+            User = restaurantManagerUser,
+            Organization = emberKitchen,
+            Title = "Restaurant Manager",
+            IsActive = true
+        };
+
+        var padelManagerMembership = new OrganizationMembership
+        {
+            User = sportsManagerUser,
+            Organization = padelCenter,
+            Title = "Club Manager",
+            IsActive = true
+        };
+
+        var northlightManagerMembership = new OrganizationMembership
+        {
+            User = managerUser,
+            Organization = northlightVenue,
+            Title = "Operations Lead",
+            IsActive = true
+        };
+
+        var emberSubscription = new OrganizationSubscription
+        {
+            Organization = emberKitchen,
+            Plan = OrganizationSubscriptionPlan.Growth,
+            IsAnalyticsEnabled = true,
+            StartsAtUtc = BookingFlowClock.UtcNow.AddDays(-18),
+            EndsAtUtc = BookingFlowClock.UtcNow.AddDays(72),
+            MonthlyPrice = 159,
+            Currency = "USD"
+        };
+
+        var padelSubscription = new OrganizationSubscription
+        {
+            Organization = padelCenter,
+            Plan = OrganizationSubscriptionPlan.Premium,
+            IsAnalyticsEnabled = true,
+            StartsAtUtc = BookingFlowClock.UtcNow.AddDays(-24),
+            EndsAtUtc = BookingFlowClock.UtcNow.AddDays(96),
+            MonthlyPrice = 279,
+            Currency = "USD"
+        };
+
+        var northlightSubscription = new OrganizationSubscription
+        {
+            Organization = northlightVenue,
+            Plan = OrganizationSubscriptionPlan.Growth,
+            IsAnalyticsEnabled = true,
+            StartsAtUtc = BookingFlowClock.UtcNow.AddDays(-12),
+            EndsAtUtc = BookingFlowClock.UtcNow.AddDays(84),
+            MonthlyPrice = 189,
+            Currency = "USD"
+        };
+
+        var pilatesAtPadelAffiliation = new ProviderOrganizationAffiliation
+        {
+            ProviderProfile = approvedProviderTwoProfile,
+            Organization = padelCenter,
+            Title = "Recovery Mobility Host",
+            IsPrimary = true,
+            IsActive = true
+        };
+
+        var yogaAtEmberRequest = new ProviderOrganizationJoinRequest
+        {
+            ProviderProfile = approvedMaiProfile,
+            Organization = emberKitchen,
+            Message = "Can host calm sunrise stretch sessions and branded wellness breakfasts on your terrace.",
+            Status = ProviderOrganizationJoinRequestStatus.Pending,
+            CreatedAtUtc = BookingFlowClock.UtcNow.AddDays(-2)
+        };
+
+        var pilatesAtPulseRequest = new ProviderOrganizationJoinRequest
+        {
+            ProviderProfile = approvedProviderTwoProfile,
+            Organization = fitnessClub,
+            Message = "I would like to run posture reset classes and recovery blocks for existing members.",
+            Status = ProviderOrganizationJoinRequestStatus.Approved,
+            CreatedAtUtc = BookingFlowClock.UtcNow.AddDays(-10)
+        };
+
+        AddDailyRules(courtOne, TimeSpan.FromHours(6), TimeSpan.FromHours(22));
+        AddDailyRules(courtTwo, TimeSpan.FromHours(6), TimeSpan.FromHours(22));
+        AddWeekdayRules(recoveryRoom, TimeSpan.FromHours(9), TimeSpan.FromHours(20));
+        AddDailyRules(terraceTable, TimeSpan.FromHours(12), TimeSpan.FromHours(23));
+        AddDailyRules(chefsCounter, TimeSpan.FromHours(18), TimeSpan.FromHours(23));
+        AddDailyRules(privateRoom, TimeSpan.FromHours(12), TimeSpan.FromHours(22));
+        AddDailyRules(mainHall, TimeSpan.FromHours(9), TimeSpan.FromHours(22));
+        AddWeekdayRules(meetingRoom, TimeSpan.FromHours(10), TimeSpan.FromHours(18));
+        AddWeekdayRules(pilatesDeck, TimeSpan.FromHours(7), TimeSpan.FromHours(17));
+        AddWeekendRules(coldPlungeReset, TimeSpan.FromHours(7), TimeSpan.FromHours(12));
+
+        var padelMixNight = new EventSession
+        {
+            Organization = padelCenter,
+            Name = "Friday Mix Match Night",
+            Description = "Club social for doubles players with match rotation and host coordination.",
+            Location = "Arena 7 main courts",
+            PosterImageUrl = "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1400&q=80",
+            ContentJson = StructuredContentSerializer.Serialize(new EventContent
+            {
+                Summary = new LocalizedTextSet
+                {
+                    Ru = "Вечер смешанных матчей для клубного знакомства и игрового темпа.",
+                    En = "An evening of mixed matches for club socializing and fast court rhythm.",
+                    Vi = "Dem danh tran mix de giao luu va vao nhiep choi nhanh."
+                },
+                Agenda = new LocalizedStringCollectionSet
+                {
+                    Ru = new[] { "Регистрация", "Ротация пар", "Мини-финалы", "After-play hangout" },
+                    En = new[] { "Check-in", "Pair rotation", "Mini finals", "After-play hangout" },
+                    Vi = new[] { "Check-in", "Xoay cap", "Mini finals", "Giao luu sau tran" }
+                }
+            }),
+            StartAtUtc = NextOccurrenceUtc(DayOfWeek.Friday, 11),
+            EndAtUtc = NextOccurrenceUtc(DayOfWeek.Friday, 14),
+            Capacity = 24,
+            IsActive = true
+        };
+
+        var brunchClub = new EventSession
+        {
+            Organization = emberKitchen,
+            Name = "Sunday Chef's Brunch",
+            Description = "Slow brunch with tasting plates and a hosted chef's counter set.",
+            Location = "Main dining hall",
+            PosterImageUrl = "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?auto=format&fit=crop&w=1400&q=80",
+            ContentJson = StructuredContentSerializer.Serialize(new EventContent
+            {
+                Summary = new LocalizedTextSet
+                {
+                    Ru = "Воскресный бранч с degustation-подачей и посадкой без спешки.",
+                    En = "A Sunday brunch with tasting plates and an unhurried hosted format.",
+                    Vi = "Brunch chu Nhat voi tasting plates va nhip dung bua cham rai."
+                }
+            }),
+            StartAtUtc = NextOccurrenceUtc(DayOfWeek.Sunday, 4),
+            EndAtUtc = NextOccurrenceUtc(DayOfWeek.Sunday, 7),
+            Capacity = 34,
+            IsActive = true
+        };
+
+        var creatorNight = new EventSession
+        {
+            Organization = northlightVenue,
+            Name = "Creator Community Night",
+            Description = "Talks, networking and short live demos for local founders and creators.",
+            Location = "Northlight main loft",
+            PosterImageUrl = "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1400&q=80",
+            ContentJson = StructuredContentSerializer.Serialize(new EventContent
+            {
+                Summary = new LocalizedTextSet
+                {
+                    Ru = "Вечер коротких выступлений, общения и демонстраций новых проектов.",
+                    En = "An evening of short talks, networking and new project demos.",
+                    Vi = "Dem noi chuyen ngan, networking va demo du an moi."
+                }
+            }),
+            StartAtUtc = NextOccurrenceUtc(DayOfWeek.Thursday, 12),
+            EndAtUtc = NextOccurrenceUtc(DayOfWeek.Thursday, 15),
+            Capacity = 90,
+            IsActive = true
+        };
+
+        var expansionBookings = new[]
+        {
+            CreateBooking(clientUser, padelCenter, courtOne, 21, courtOne.SlotSizeMinutes, courtOne.PriceFrom, 4, 30),
+            CreateBooking(weekendClientUser, padelCenter, courtTwo, 13, courtTwo.SlotSizeMinutes, courtTwo.PriceFrom, 4, 48),
+            CreateBooking(corporateClientUser, padelCenter, recoveryRoom, 9, recoveryRoom.SlotSizeMinutes, recoveryRoom.PriceFrom, 2, 24),
+            CreateFutureBooking(returningClientUser, padelCenter, courtOne, 6, courtOne.SlotSizeMinutes, courtOne.PriceFrom, 4, 72),
+            CreateFutureBooking(vipClientUser, emberKitchen, privateRoom, 12, privateRoom.SlotSizeMinutes, privateRoom.PriceFrom, 8, 96),
+            CreateBooking(freshClientUser, emberKitchen, terraceTable, 11, terraceTable.SlotSizeMinutes, terraceTable.PriceFrom, 3, 18),
+            CreateBooking(weekendClientUser, emberKitchen, chefsCounter, 4, chefsCounter.SlotSizeMinutes, chefsCounter.PriceFrom, 2, 36),
+            CreateCancelledBooking(clientUser, emberKitchen, terraceTable, 2, terraceTable.SlotSizeMinutes, terraceTable.PriceFrom, 16),
+            CreateBooking(corporateClientUser, northlightVenue, mainHall, 17, mainHall.SlotSizeMinutes, mainHall.PriceFrom, 40, 120),
+            CreateFutureBooking(weekendClientUser, northlightVenue, meetingRoom, 8, meetingRoom.SlotSizeMinutes, meetingRoom.PriceFrom, 10, 72),
+            CreateBooking(clientUser, padelCenter, pilatesDeck, 7, pilatesDeck.SlotSizeMinutes, pilatesDeck.PriceFrom, 1, 20),
+            CreateFutureBooking(vipClientUser, padelCenter, pilatesDeck, 10, pilatesDeck.SlotSizeMinutes, pilatesDeck.PriceFrom, 2, 60)
+        };
+
+        var expansionEventBookings = new[]
+        {
+            CreateEventBooking(clientUser, padelCenter, padelMixNight, 9, 2),
+            CreateEventBooking(weekendClientUser, padelCenter, padelMixNight, 6, 2),
+            CreateEventBooking(returningClientUser, emberKitchen, brunchClub, 5, 4),
+            CreateEventBooking(corporateClientUser, northlightVenue, creatorNight, 12, 3)
+        };
+
+        _dbContext.Organizations.AddRange(padelCenter, emberKitchen, northlightVenue);
+        _dbContext.OrganizationMemberships.AddRange(emberManagerMembership, padelManagerMembership, northlightManagerMembership);
+        _dbContext.OrganizationSubscriptions.AddRange(emberSubscription, padelSubscription, northlightSubscription);
+        _dbContext.ProviderProfiles.AddRange(approvedProviderTwoProfile, pendingProviderTwoProfile);
+        _dbContext.ProviderOrganizationAffiliations.Add(pilatesAtPadelAffiliation);
+        _dbContext.ProviderOrganizationJoinRequests.AddRange(yogaAtEmberRequest, pilatesAtPulseRequest);
+        _dbContext.Resources.AddRange(
+            courtOne,
+            courtTwo,
+            recoveryRoom,
+            terraceTable,
+            chefsCounter,
+            privateRoom,
+            mainHall,
+            meetingRoom,
+            pilatesDeck,
+            coldPlungeReset);
+        _dbContext.EventSessions.AddRange(padelMixNight, brunchClub, creatorNight);
+        _dbContext.Bookings.AddRange(expansionBookings);
+        _dbContext.Bookings.AddRange(expansionEventBookings);
+        _dbContext.AnalyticsEvents.AddRange(
+            CreateAnalyticsEvents(padelCenter, courtOne, courtTwo, padelMixNight, 128, 94, 35)
+                .Concat(CreateAnalyticsEvents(emberKitchen, terraceTable, privateRoom, brunchClub, 86, 52, 17))
+                .Concat(CreateAnalyticsEvents(northlightVenue, mainHall, meetingRoom, creatorNight, 74, 36, 23))
+                .Concat(CreateAnalyticsEvents(harborBar, await _dbContext.Resources.SingleAsync(x => x.Name == "Table 1", cancellationToken), null, null, 18, 7, 0)));
 
         await _dbContext.SaveChangesAsync(cancellationToken);
     }

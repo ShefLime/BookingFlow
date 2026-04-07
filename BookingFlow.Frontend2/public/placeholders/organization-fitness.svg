@@ -1,0 +1,16 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" rx="40" fill="#0E141D"/>
+  <rect x="44" y="44" width="1112" height="712" rx="28" fill="url(#paint0_linear)"/>
+  <circle cx="951" cy="217" r="146" fill="#C8FF4A" fill-opacity="0.14"/>
+  <circle cx="284" cy="587" r="185" fill="#4A89FF" fill-opacity="0.18"/>
+  <path d="M316 479C316 435.922 350.922 401 394 401H806C849.078 401 884 435.922 884 479V484C884 527.078 849.078 562 806 562H394C350.922 562 316 527.078 316 484V479Z" fill="#F4F6F8" fill-opacity="0.08"/>
+  <path d="M461 332C461 309.909 478.909 292 501 292H699C721.091 292 739 309.909 739 332V349C739 371.091 721.091 389 699 389H501C478.909 389 461 371.091 461 349V332Z" fill="#F4F6F8" fill-opacity="0.1"/>
+  <text x="90" y="644" fill="#F4F6F8" fill-opacity="0.92" font-family="Montserrat, Arial, sans-serif" font-size="56" font-weight="700">Фитнес и тренировки</text>
+  <text x="90" y="696" fill="#F4F6F8" fill-opacity="0.62" font-family="Montserrat, Arial, sans-serif" font-size="28">Запись на персональные и клубные форматы</text>
+  <defs>
+    <linearGradient id="paint0_linear" x1="90" y1="44" x2="1134" y2="756" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#141D29"/>
+      <stop offset="1" stop-color="#0B1017"/>
+    </linearGradient>
+  </defs>
+</svg>
